@@ -37,13 +37,15 @@ if __name__ == "__main__":
 
         filepath = os.path.join(input_directory, found_files[choice-1])
         print(f"Reading file: {found_files[choice-1]}")
-        df = read_excel_file(filepath)
+        df_parts, df_params = read_excel_file(filepath)
 
     # Print the head of the dataset
-    print("\nData preview:")
-    print(df.head(n=21))
-    result_df = combine_consecutive_components(df)
+    print("\nParts preview:")
+    print(df_parts.head(n=21))
+    print("\nParameters preview:")
+    print(df_params.head(n=13))
+    df_result = combine_consecutive_components(df_parts)
     print("\nData sorted:")
-    print(result_df.head(n=10))
+    print(df_result.head(n=10))
     # Write part list to excel
-    write_to_excel(result_df, "part_list_pe3")
+    write_to_excel(df_result, "part_list_pe3")

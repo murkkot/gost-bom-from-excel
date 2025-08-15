@@ -2,3 +2,4 @@
 /input/*.xlsx
 /output/*.xls
 /output/*.xlsx
+__pycache__/

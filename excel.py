@@ -1,4 +1,5 @@
 import os
+import sys
 import pandas as pd
 from pathlib import Path
 
@@ -13,8 +14,18 @@ def find_excel_files(input_dir):
 # Read excel file to dataset
 def read_excel_file(filepath):
     try:
-        # Read the Excel file (handles both .xls and .xlsx)
-        return pd.read_excel(filepath)
+        # Read Excel file once and get sheet names
+        xls = pd.ExcelFile(filepath)
+        if not {'List1', 'List2'}.issubset(xls.sheet_names):
+            missing = {'List1', 'List2'} - set(xls.sheet_names)
+            print(f"Missing sheets: {', '.join(missing)}")
+            sys.exit(1)
+
+        # Read both sheets using the ExcelFile object
+        list1_df = pd.read_excel(xls, sheet_name='List1')
+        list2_df = pd.read_excel(xls, sheet_name='List2')
+        return list1_df, list2_df
+
     except Exception as e:
         print(f"Error reading file {filepath}: {e}")
         sys.exit(1)
