@@ -15,6 +15,6 @@ cd /d "E:/gost-bom-from-excel"
 5. В папку input положите исходные файлы
 6. В коммандной строке запустите программу
 ```
-cls; python .\gost-bom-from-excel.py
+cls; python .\main.py
 ```
 7. Следуйте указаниям программы
