@@ -1,2 +1,4 @@
 /input/*.xls
 /input/*.xlsx
+/output/*.xls
+/output/*.xlsx
