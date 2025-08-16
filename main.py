@@ -52,3 +52,10 @@ if __name__ == "__main__":
     print(df_newdata.head(n=30))
     # Write part list to excel
     write_to_excel(df_newdata, "part_list_pe3")
+
+    # print(df_result.iloc[7,0])
+    # res = modify_designator_field_length(df_result.iloc[7,0],10)
+    # print(res)
+    # print(df_result.iloc[6,0])
+    # res = modify_designator_field_length(df_result.iloc[6,0],10)
+    # print(res)

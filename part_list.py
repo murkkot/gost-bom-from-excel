@@ -95,7 +95,7 @@ def modify_designator_field_length(field, length):
             current_segment = test_segment
         else:
             if current_segment:  # Only add if not empty
-                result.append(current_segment)
+                result.append(current_segment + ",")
             current_segment = part
             
     # Add the last segment if it exists
