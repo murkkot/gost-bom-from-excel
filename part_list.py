@@ -48,7 +48,7 @@ def process_designator_sequence(designators):
             prefix, num = match.groups()
             parsed.append((prefix, int(num)))
         else:
-            return ', '.join(designators)
+            return ',  '.join(designators)
     
     # Group into consecutive sequences
     groups = []
@@ -72,6 +72,93 @@ def process_designator_sequence(designators):
         if len(group) >= 3:
             formatted_groups.append(f"{group[0]}...{group[-1]}")
         else:
-            formatted_groups.append(", ".join(group))
+            formatted_groups.append(",".join(group))
     
-    return ", ".join(formatted_groups)
+    return ",".join(formatted_groups)
+
+# Modify fields length to fit in template
+# ПЭ3 Поз. обозн. <= 10
+# СП Примечание (поз. обозн.) <= 11
+def modify_designator_field_length(field, length):
+    result = []
+    current_segment = ""
+    fields = field.split(',')
+    
+    for i, part in enumerate(fields):
+        # Check if adding this part would exceed length
+        if current_segment:
+            test_segment = current_segment + "," + part + ","
+        else:
+            test_segment = part + ","
+            
+        if len(test_segment) <= length:
+            current_segment = test_segment
+        else:
+            if current_segment:  # Only add if not empty
+                result.append(current_segment)
+            current_segment = part
+            
+    # Add the last segment if it exists
+    if current_segment:
+        result.append(current_segment)
+        
+    return result
+
+# ПЭ3 Наименование <= 38
+# СП Наименование <= 23
+def modify_name_field_length(field, length):
+    result = []
+    current_segment = ""
+    fields = field.split(' ')
+    
+    for i, part in enumerate(fields):
+        # Check if adding this part would exceed length
+        if current_segment:
+            test_segment = current_segment + " " + part
+        else:
+            test_segment = part
+            
+        if len(test_segment) <= length:
+            current_segment = test_segment
+        else:
+            if current_segment:  # Only add if not empty
+                result.append(current_segment)
+            current_segment = part
+            
+    # Add the last segment if it exists
+    if current_segment:
+        result.append(current_segment)
+        
+    return result
+
+# Modify dataframe's field with according lenght to fit the template
+def modify_part_list(dataset):
+
+    DEGIGNATOR_FIELD_LENGTH = 10
+    NAME_FIELD_LENGTH = 38
+
+    new_data = []
+    
+    for _, row in dataset.iterrows():
+        designator = row['Designator']
+        designator_parts = modify_designator_field_length(designator, DEGIGNATOR_FIELD_LENGTH)
+        name = row['Name']
+        name_parts = modify_name_field_length(name, NAME_FIELD_LENGTH)
+
+        num_rows = max(len(designator_parts), len(name_parts))
+        
+        for i in range(num_rows):
+            new_row = row.copy()
+            
+            # Designator: Use current part or empty if no more splits
+            new_row['Designator'] = designator_parts[i] if i < len(designator_parts) else ''
+            
+            # Name: Use current part or empty if no more splits
+            new_row['Name'] = name_parts[i] if i < len(name_parts) else ''
+            
+            # Quantity: Keep only for the first row, empty for others
+            new_row['Quantity'] = row['Quantity'] if i == 0 else ''
+            
+            new_data.append(new_row)
+    
+    return pd.DataFrame(new_data, columns=dataset.columns)

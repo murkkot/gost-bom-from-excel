@@ -40,12 +40,15 @@ if __name__ == "__main__":
         df_parts, df_params = read_excel_file(filepath)
 
     # Print the head of the dataset
-    print("\nParts preview:")
-    print(df_parts.head(n=21))
-    print("\nParameters preview:")
-    print(df_params.head(n=13))
+    #print("\nParameters preview:")
+    #print(df_params.head(n=13))
+    #print("\nParts preview:")
+    #print(df_parts.head(n=21))
     df_result = combine_consecutive_components(df_parts)
     print("\nData sorted:")
     print(df_result.head(n=10))
+    df_newdata = modify_part_list(df_result)
+    print("\nDataset modified:")
+    print(df_newdata.head(n=30))
     # Write part list to excel
-    write_to_excel(df_result, "part_list_pe3")
+    write_to_excel(df_newdata, "part_list_pe3")
