@@ -46,7 +46,7 @@ if __name__ == "__main__":
     #print(df_parts.head(n=21))
     df_result = combine_consecutive_components(df_parts)
     print("\nData sorted:")
-    print(df_result.head(n=10))
+    print(df_result.head(n=20))
     df_newdata = modify_part_list(df_result)
     print("\nDataset modified:")
     print(df_newdata.head(n=30))
