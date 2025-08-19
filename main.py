@@ -53,6 +53,15 @@ if __name__ == "__main__":
     # Write part list to excel
     write_to_excel(df_newdata, "part_list_pe3")
 
+    # Create file name for part list
+    part_list_file_name = create_part_list_filename(df_params)
+     # Create file name for bom
+    bom_file_name = create_bom_filename(df_params)
+     # Copy part list template
+    copy_rename_part_list_template(part_list_file_name)
+    # Copy bom template
+    copy_rename_bom_template(bom_file_name)
+
     # print(df_result.iloc[7,0])
     # res = modify_designator_field_length(df_result.iloc[7,0],10)
     # print(res)
