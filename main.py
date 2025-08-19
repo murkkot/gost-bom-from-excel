@@ -45,26 +45,22 @@ if __name__ == "__main__":
     #print("\nParts preview:")
     #print(df_parts.head(n=21))
     df_result = combine_consecutive_components(df_parts)
-    print("\nData sorted:")
-    print(df_result.head(n=20))
+    # print("\nData sorted:")
+    # print(df_result.head(n=20))
     df_newdata = modify_part_list(df_result)
     print("\nDataset modified:")
-    print(df_newdata.head(n=30))
+    print(df_newdata.head(n=10))
     # Write part list to excel
     write_to_excel(df_newdata, "part_list_pe3")
 
     # Create file name for part list
     part_list_file_name = create_part_list_filename(df_params)
-     # Create file name for bom
+    # Create file name for bom
     bom_file_name = create_bom_filename(df_params)
-     # Copy part list template
+    # Copy part list template
     copy_rename_part_list_template(part_list_file_name)
     # Copy bom template
     copy_rename_bom_template(bom_file_name)
 
-    # print(df_result.iloc[7,0])
-    # res = modify_designator_field_length(df_result.iloc[7,0],10)
-    # print(res)
-    # print(df_result.iloc[6,0])
-    # res = modify_designator_field_length(df_result.iloc[6,0],10)
-    # print(res)
+    # Write part list to excel
+    write_part_list_to_template(df_params, df_newdata, part_list_file_name)

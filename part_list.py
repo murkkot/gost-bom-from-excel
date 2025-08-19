@@ -139,7 +139,7 @@ def reformat_names_list(string):
     while i < len(string):
         s = string[i]
         if re.search(r'\d$', s) and (i + 1) < len(string):
-            s = s + ' ' +string[i + 1]
+            s = s + ' ' + string[i + 1]
             result.append(s)
             i += 2
         else:
@@ -150,8 +150,8 @@ def reformat_names_list(string):
 # Modify dataframe's field with according lenght to fit the template
 def modify_part_list(dataset):
 
-    DEGIGNATOR_FIELD_LENGTH = 10
-    NAME_FIELD_LENGTH = 38
+    DEGIGNATOR_FIELD_LENGTH = 15
+    NAME_FIELD_LENGTH = 50
 
     new_data = []
     

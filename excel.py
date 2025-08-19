@@ -1,8 +1,12 @@
 import os
 import sys
+import math
 import pandas as pd
+from openpyxl import load_workbook
+from openpyxl.utils import range_boundaries
 from pathlib import Path
 import shutil
+from itertools import chain
 
 # Find excel files in named folder
 def find_excel_files(input_dir):
@@ -107,3 +111,120 @@ def copy_rename_bom_template(filename):
         print("Error: Permission denied")
     except Exception as e:
         print(f"An error occurred: {e}")
+
+# Write part list to template
+def write_part_list_to_template(df_params, df_data, filename):
+    SHEET1_ROWS_NUMBER = 29
+    SHEETN_ROWS_NUMBER = 32
+    # Compute number of sheets in template
+    num_rows = df_data.shape[0]
+    #print("Num rows: ", num_rows)
+    if num_rows <= SHEET1_ROWS_NUMBER:
+        num_sheets = 1
+    else:
+        num_sheets = math.ceil((num_rows - SHEET1_ROWS_NUMBER) / SHEETN_ROWS_NUMBER) + 1
+    # print("Num sheets: ", num_sheets)
+
+    # Write parameters to title block
+    output_path = Path('output') / f"{filename}"
+    try:
+        # Load the workbook with openpyxl
+        wb = load_workbook(output_path)
+        # Write parameters to Sheet1
+        # Set target sheet
+        target_sheet='Sheet1'
+        if target_sheet not in wb.sheetnames:
+            raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
+        ws = wb[target_sheet]
+
+        value = df_params.loc[df_params["Key"] == "Разработал", "Value"].values[0]
+        write_to_merged_cell(ws, 'E37', value)
+        value = df_params.loc[df_params["Key"] == "Проверил", "Value"].values[0]
+        write_to_merged_cell(ws, 'E38', value)
+        value = df_params.loc[df_params["Key"] == "Нормоконтролёр", "Value"].values[0]
+        write_to_merged_cell(ws, 'E40', value)
+        value = df_params.loc[df_params["Key"] == "Утвердил", "Value"].values[0]
+        write_to_merged_cell(ws, 'E41', value)
+        value = df_params.loc[df_params["Key"] == "Утвердил", "Value"].values[0]
+        write_to_merged_cell(ws, 'E41', value)
+        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
+        write_to_merged_cell(ws, 'H37', value)
+        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
+        write_to_merged_cell(ws, 'H38', value)
+        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
+        write_to_merged_cell(ws, 'H40', value)
+        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
+        write_to_merged_cell(ws, 'H41', value)
+        value = df_params.loc[df_params["Key"] == "Наименование 1", "Value"].values[0]
+        write_to_merged_cell(ws, 'I38', value)
+        value = df_params.loc[df_params["Key"] == "Наименование 2", "Value"].values[0]
+        write_to_merged_cell(ws, 'I39', value)
+        value =  'Версия ' + df_params.loc[df_params["Key"] == "Версия", "Value"].values[0] + '.' \
+        + df_params.loc[df_params["Key"] == "Ревизия ПЭ3", "Value"].values[0]
+        write_to_merged_cell(ws, 'I40', value)
+        value = df_params.loc[df_params["Key"] == "Децимальный номер", "Value"].values[0] + ' ПЭ3'
+        write_to_merged_cell(ws, 'I34', value)
+        # Write total sheet number
+        write_to_merged_cell(ws, 'P38', num_sheets)
+
+        # Write data to Sheet1 cells C2:J17, C19:J26, C28:J30, C32:J33
+        row_idx = 0
+        for excel_row in chain(range(2, 18), range(19, 27), range(28, 31), range(32, 34)):
+            col_idx = 0
+            # Cells C, F, J            
+            for excel_col in [3, 6, 10]:
+                cell_ref = f"{chr(64 + excel_col)}{excel_row}"
+                cell_value = df_data.iloc[row_idx, col_idx]
+                col_idx += 1
+                write_to_merged_cell(ws, cell_ref, cell_value)
+            row_idx += 1
+            if row_idx >= num_rows:
+                break
+
+        # Write data and parameters to SheetN
+        if num_sheets > 1:
+            for i in range(2, num_sheets + 1):
+                # Select current sheet
+                target_sheet = f"Sheet{i}"
+                if target_sheet not in wb.sheetnames:
+                    raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
+                ws = wb[target_sheet]
+                # Write decimal number to title block
+                write_to_merged_cell(ws, 'I38', value)
+                # Write data to SheetN cells C2:J17, C19:J22, C24:J30, C32:J35, C37
+                row_idx = 29 + (i - 2) * 32
+                for excel_row in chain(range(2, 18), range(19, 23), range(24, 31), range(32, 36), range(37, 38)):
+                    col_idx = 0
+                    # Cells C, F, J            
+                    for excel_col in [3, 6, 10]:
+                        cell_ref = f"{chr(64 + excel_col)}{excel_row}"
+                        cell_value = df_data.iloc[row_idx, col_idx]
+                        col_idx += 1
+                        write_to_merged_cell(ws, cell_ref, cell_value)
+                    row_idx += 1
+                    if row_idx >= num_rows:
+                        break
+       
+        # Save workbook
+        wb.save(output_path)
+ 
+    except FileNotFoundError:
+        print("Error: File or directory not found")
+    except PermissionError:
+        print("Error: Permission denied")
+    except Exception as e:
+        print(f"Error occurred: {str(e)}")
+
+# Write to merged cell
+def write_to_merged_cell(ws, cell_ref, value):
+    # Writes to the top-left cell of a merged range
+    for merged_range in ws.merged_cells.ranges:
+        if cell_ref in merged_range:
+            # Get top-left cell of merged range
+            min_col, min_row, _, _ = range_boundaries(str(merged_range))
+            top_left_cell = ws.cell(row=min_row, column=min_col)
+            top_left_cell.value = value
+            return
+    
+    # If not in merged range, write normally
+    ws[cell_ref] = value
