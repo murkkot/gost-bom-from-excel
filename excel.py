@@ -4,6 +4,7 @@ import math
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import range_boundaries
+from openpyxl.styles import Border, Side
 from pathlib import Path
 import shutil
 from itertools import chain
@@ -127,16 +128,19 @@ def write_part_list_to_template(df_params, df_data, filename):
 
     # Write parameters to title block
     output_path = Path('output') / f"{filename}"
+    print(output_path)
     try:
         # Load the workbook with openpyxl
         wb = load_workbook(output_path)
-        # Write parameters to Sheet1
+        
+        # Write to Sheet1
         # Set target sheet
         target_sheet='Sheet1'
         if target_sheet not in wb.sheetnames:
             raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
         ws = wb[target_sheet]
 
+        # Write parameters to Sheet1
         value = df_params.loc[df_params["Key"] == "Разработал", "Value"].values[0]
         write_to_merged_cell(ws, 'E37', value)
         value = df_params.loc[df_params["Key"] == "Проверил", "Value"].values[0]
@@ -168,6 +172,7 @@ def write_part_list_to_template(df_params, df_data, filename):
         write_to_merged_cell(ws, 'P38', num_sheets)
 
         # Write data to Sheet1 cells C2:J17, C19:J26, C28:J30, C32:J33
+
         row_idx = 0
         for excel_row in chain(range(2, 18), range(19, 27), range(28, 31), range(32, 34)):
             col_idx = 0
@@ -180,17 +185,27 @@ def write_part_list_to_template(df_params, df_data, filename):
             row_idx += 1
             if row_idx >= num_rows:
                 break
-
+        
+        # Set border thickness for broken cells
+        set_border_thickness(ws, 'Q2:Q33')
+        
         # Write data and parameters to SheetN
         if num_sheets > 1:
             for i in range(2, num_sheets + 1):
                 # Select current sheet
                 target_sheet = f"Sheet{i}"
+                if i > 2:
+                    # Add sheet
+                    ws = wb['Sheet2']
+                    target = wb.copy_worksheet(ws)
+                    target.title = target_sheet
                 if target_sheet not in wb.sheetnames:
                     raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
                 ws = wb[target_sheet]
                 # Write decimal number to title block
                 write_to_merged_cell(ws, 'I38', value)
+                # Write page number to title block
+                write_to_merged_cell(ws, 'P40', i)
                 # Write data to SheetN cells C2:J17, C19:J22, C24:J30, C32:J35, C37
                 row_idx = 29 + (i - 2) * 32
                 for excel_row in chain(range(2, 18), range(19, 23), range(24, 31), range(32, 36), range(37, 38)):
@@ -204,7 +219,18 @@ def write_part_list_to_template(df_params, df_data, filename):
                     row_idx += 1
                     if row_idx >= num_rows:
                         break
-       
+                # Set border thickness for broken cells
+                set_border_thickness(ws, 'Q2:Q37')
+        else:
+            # If only one sheet, delete Sheet2
+            sheet_name = "Sheet2"
+            if sheet_name in wb.sheetnames:
+            # Remove the sheet
+                del wb[sheet_name]
+                print(f"Sheet '{sheet_name}' deleted successfully.")
+            else:
+                print(f"Sheet '{sheet_name}' not found in the workbook.")
+          
         # Save workbook
         wb.save(output_path)
  
@@ -228,3 +254,19 @@ def write_to_merged_cell(ws, cell_ref, value):
     
     # If not in merged range, write normally
     ws[cell_ref] = value
+
+def set_border_thickness(ws, range):
+    # Create bold left border
+    bold_left = Side(style='medium')
+
+    # Apply to the entire range Q2:Q33
+    for row in ws[range]:
+        for cell in row:
+            # Preserve existing borders and only modify left border
+            current_border = cell.border
+            cell.border = Border(
+                left=bold_left,
+                top=current_border.top,
+                right=current_border.right,
+                bottom=current_border.bottom
+            )

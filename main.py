@@ -51,7 +51,7 @@ if __name__ == "__main__":
     print("\nDataset modified:")
     print(df_newdata.head(n=10))
     # Write part list to excel
-    write_to_excel(df_newdata, "part_list_pe3")
+    #write_to_excel(df_newdata, "part_list_pe3")
 
     # Create file name for part list
     part_list_file_name = create_part_list_filename(df_params)
