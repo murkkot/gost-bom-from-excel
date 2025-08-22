@@ -17,20 +17,37 @@ def find_excel_files(input_dir):
             excel_files.append(filename)
     return excel_files
 
-# Read excel file to dataset
-def read_excel_file(filepath):
+# Read altium excel file to dataset
+def read_altium_excel_file(filepath):
     try:
         # Read Excel file once and get sheet names
         xls = pd.ExcelFile(filepath)
-        if not {'List1', 'List2'}.issubset(xls.sheet_names):
-            missing = {'List1', 'List2'} - set(xls.sheet_names)
+        if not {'Sheet1', 'Sheet2'}.issubset(xls.sheet_names):
+            missing = {'Sheet1', 'Sheet2'} - set(xls.sheet_names)
             print(f"Missing sheets: {', '.join(missing)}")
             sys.exit(1)
 
         # Read both sheets using the ExcelFile object
-        list1_df = pd.read_excel(xls, sheet_name='List1')
-        list2_df = pd.read_excel(xls, sheet_name='List2')
+        list1_df = pd.read_excel(xls, sheet_name='Sheet1')
+        list2_df = pd.read_excel(xls, sheet_name='Sheet2')
         return list1_df, list2_df
+
+    except Exception as e:
+        print(f"Error reading file {filepath}: {e}")
+        sys.exit(1)
+
+# Read groups escel file to dataset
+def read_groups_excel_file(filepath):
+    try:
+        # Read Excel file once and get sheet names
+        xls = pd.ExcelFile(filepath)
+        if not {'Sheet1'}.issubset(xls.sheet_names):
+            print("Missing Sheet1")
+            sys.exit(1)
+
+        # Read sheet using the ExcelFile object
+        df = pd.read_excel(xls, sheet_name='Sheet1')
+        return df
 
     except Exception as e:
         print(f"Error reading file {filepath}: {e}")

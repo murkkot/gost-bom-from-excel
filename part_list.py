@@ -2,7 +2,7 @@ import re
 import pandas as pd
 
 # Sort dataset for parts list (PE3)
-def combine_consecutive_components(df):
+def combine_part_list_consecutive_components(df):
     if df.empty:
         return pd.DataFrame(columns=['Designator', 'Name', 'Quantity'])
     
