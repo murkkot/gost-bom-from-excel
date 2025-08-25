@@ -62,12 +62,13 @@ if __name__ == "__main__":
     # Modify part list for template
     df_part_list_templated = modify_part_list(df_part_list)
     # Write part list to excel
-    # write_to_excel(df_part_list_templated, "part_list_pe3")
+    #write_to_excel(df_part_list, "part_list_pe3")
 
     df_bom = combine_bom_components(df_data)
     df_bom = sort_bom(df_bom, df_groups)
     # Write bom to excel
     write_to_excel(df_bom, "bom_sp")
+
     
     # Print the head of the dataset
     #print("\nParameters preview:")
@@ -76,7 +77,7 @@ if __name__ == "__main__":
     # print(df_bom.head(n=21))
 
  
-    print(df_bom.head(n=21))
+    #print(df_bom.head(n=21))
 
     # print("\nGroups preview:")
     # print(df_groups.head(n=10))

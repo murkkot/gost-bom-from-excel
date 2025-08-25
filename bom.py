@@ -1,6 +1,13 @@
 import pandas as pd
 import numpy as np
 import re
+from auxiliary import *
+from typing import List
+
+def natural_sort_key(s: str) -> List:
+
+    # Create a sort key for natural sorting. 
+    return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
 
 def combine_bom_components(df):
     if df.empty:
@@ -10,7 +17,7 @@ def combine_bom_components(df):
 
     # Group by Name and aggregate
     result = df.groupby('Name').agg({
-        'Designator': lambda x: ','.join(sorted(x)),  # sorted for consistent order
+        'Designator': lambda x: ','.join(sorted(x, key=natural_sort_key)),  # sorted for consistent order
         'Quantity': 'sum',
         'Decimal Number': lambda x: x.iloc[0] if x.notna().any() else pd.NA
     }).reset_index()  
@@ -19,6 +26,7 @@ def combine_bom_components(df):
     return result
 
 def sort_bom(df_data, df_groups):
+
     # Create a copy to avoid modifying the original dataframe
     df_mid = df_data.copy()
     # Append new columnd with group letter
@@ -38,28 +46,37 @@ def sort_bom(df_data, df_groups):
     
     # Create empty dataframe
     df_result = pd.DataFrame(columns=['Decimal Number', 'Name', 'Quantity', 'Designator', 'Group'])
-    # Create uniq list
-    uniq_groups = []
+    # Change the column's dtype to 'object'
+    df_result['Name'] = df_result['Name'].astype(object)
+    # # Use a list to collect rows for the final DataFrame
+    result_rows = []
     seen_groups = set() # Using set() for faster lookup
     # Iterate over dataframe
-    for idx, row in df_mid.iterrows():
+    for _, row in df_mid.iterrows():
+        # Reformat designators according to GOST
+        # row['Designator'] = process_designator_sequence(row['Designator'])
         if row['Group'] not in seen_groups:
-            # Append empty row
-            df_result.loc[df_result.shape[0]] = np.nan
-            # Append another empty row
-            df_result.loc[df_result.shape[0]] = np.nan
-            # Add group name to the Name field
-            df_result.loc[df_result.index[-1], 'Name'] = row['Group']
-            # Add group name to uniq_groups
-            uniq_groups.append(row['Group'])
+            # Add empty rows and the group header
+            result_rows.append([np.nan, np.nan, np.nan, np.nan])
+            result_rows.append([np.nan, row['Group'], np.nan, np.nan])
             seen_groups.add(row['Group'])
-            # Append current row to df_result
-            df_result.loc[df_result.shape[0]] = row
-        else:
-            # Append current row to df_result
-            df_result.loc[df_result.shape[0]] = row
-    # Drop column Group
-    df_result.drop(columns=['Group'], inplace=True)
+        # Process designator sequence in row
+        current_designators = row['Designator']
+        designator_list = current_designators.split(',')
+        processed_designators = process_designator_sequence(designator_list)
+        row['Designator'] = processed_designators
+        # Append the current row's data
+        result_rows.append(row[['Decimal Number', 'Name', 'Quantity', 'Designator']].tolist())
+
+    # Create the final DataFrame from the list of rows
+    df_result = pd.DataFrame(result_rows, columns=['Decimal Number', 'Name', 'Quantity', 'Designator'])
+
+    # current_designators = df_result.iloc[14]['Designator']
+    # des_list = current_designators.split(',')
+    # print(des_list)
+    # processed_designators = process_designator_sequence(des_list)
+    # print(processed_designators)
+
     return df_result
 
 # Extract the first two letters from Designator to identify groups
