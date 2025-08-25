@@ -71,12 +71,6 @@ def sort_bom(df_data, df_groups):
     # Create the final DataFrame from the list of rows
     df_result = pd.DataFrame(result_rows, columns=['Decimal Number', 'Name', 'Quantity', 'Designator'])
 
-    # current_designators = df_result.iloc[14]['Designator']
-    # des_list = current_designators.split(',')
-    # print(des_list)
-    # processed_designators = process_designator_sequence(des_list)
-    # print(processed_designators)
-
     return df_result
 
 # Extract the first two letters from Designator to identify groups
@@ -88,3 +82,54 @@ def extract_group(designator):
     first_designator = designators[0].strip()
     result = re.match(r"^[A-Za-z]+", first_designator).group()
     return result
+
+# Modify dataframe's field with according lenght to fit the template
+def modify_bom_fields(dataset):
+
+    DEGIGNATOR_FIELD_LENGTH = 11
+    NAME_FIELD_LENGTH = 23
+
+    new_data = []
+    
+    for _, row in dataset.iterrows():
+        designator = row['Designator']
+        name = row['Name']
+
+        # If designator is not a string, treat it as an empty one
+        if isinstance(designator, str) and pd.notna(designator):
+            designator_parts = modify_designator_field_length(designator, DEGIGNATOR_FIELD_LENGTH)
+        else:
+            designator_parts = ['']
+
+        # If name is not a string, treat it as an empty one
+        if isinstance(name, str) and pd.notna(name):
+            name_parts = modify_name_field_length(name, NAME_FIELD_LENGTH)
+        else:
+            name_parts = ['']
+
+        num_rows = max(len(designator_parts), len(name_parts))
+        
+        for i in range(num_rows):
+            new_row = row.copy()
+            
+            # Designator: Use current part or empty if no more splits
+            new_row['Designator'] = designator_parts[i] if i < len(designator_parts) else ''
+            
+            # Name: Use current part or empty if no more splits
+            new_row['Name'] = name_parts[i] if i < len(name_parts) else ''
+            
+            # Quantity: Keep only for the first row, empty for others
+            new_row['Quantity'] = row['Quantity'] if i == 0 else ''
+
+            # Decimal Number: Keep only for the first expanded row
+            new_row['Decimal Number'] = row['Decimal Number'] if i == 0 else ''
+            
+            new_data.append(new_row)
+
+    # Reconstruct the DataFrame from the list of new rows
+    if not new_data:
+        return pd.DataFrame(columns=dataset.columns)
+    
+    return pd.DataFrame(new_data)[dataset.columns.tolist()]
+    
+    #return pd.DataFrame(new_data, columns=dataset.columns)

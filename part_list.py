@@ -36,79 +36,8 @@ def combine_part_list_consecutive_components(df):
     
     return pd.DataFrame(combined_data)
 
-# Modify fields length to fit in template
-# ПЭ3 Поз. обозн. <= 10
-# СП Примечание (поз. обозн.) <= 11
-def modify_designator_field_length(field, length):
-    result = []
-    current_segment = ""
-    fields = field.split(',')
-    
-    for i, part in enumerate(fields):
-        # Check if adding this part would exceed length
-        if current_segment:
-            test_segment = current_segment + "," + part
-        else:
-            test_segment = part
-            
-        if len(test_segment) <= length:
-            current_segment = test_segment
-        else:
-            if current_segment:  # Only add if not empty
-                result.append(current_segment + ",")
-            current_segment = part
-            
-    # Add the last segment if it exists
-    if current_segment:
-        result.append(current_segment)
-        
-    return result
-
-# ПЭ3 Наименование <= 38
-# СП Наименование <= 23
-def modify_name_field_length(field, length):
-    result = []
-    current_segment = ""
-    fields = field.split(' ')
-    fields = reformat_names_list(fields)
-    
-    for part in fields:
-        # Check if adding this part would exceed length
-        if current_segment:
-            test_segment = current_segment + " " + part
-        else:
-            test_segment = part
-            
-        if len(test_segment) <= length:
-            current_segment = test_segment
-        else:
-            if current_segment:  # Only add if not empty
-                result.append(current_segment)
-            current_segment = part
-            
-    # Add the last segment if it exists
-    if current_segment:
-        result.append(current_segment)
-        
-    return result
-
-# Reformat names list to exclude units from numbers separation
-def reformat_names_list(string):
-    result = [] 
-    i = 0
-    while i < len(string):
-        s = string[i]
-        if re.search(r'\d$', s) and (i + 1) < len(string):
-            s = s + ' ' + string[i + 1]
-            result.append(s)
-            i += 2
-        else:
-            result.append(s)
-            i += 1
-    return result
-
 # Modify dataframe's field with according lenght to fit the template
-def modify_part_list(dataset):
+def modify_part_list_fields(dataset):
 
     DEGIGNATOR_FIELD_LENGTH = 15
     NAME_FIELD_LENGTH = 50

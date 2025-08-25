@@ -60,14 +60,15 @@ if __name__ == "__main__":
     # Sort part list
     df_part_list = combine_part_list_consecutive_components(df_data)
     # Modify part list for template
-    df_part_list_templated = modify_part_list(df_part_list)
+    df_part_list_templated = modify_part_list_fields(df_part_list)
     # Write part list to excel
-    #write_to_excel(df_part_list, "part_list_pe3")
+    # write_to_excel(df_part_list_templated, "part_list_pe3")
 
     df_bom = combine_bom_components(df_data)
     df_bom = sort_bom(df_bom, df_groups)
+    df_bom_templated = modify_bom_fields(df_bom)
     # Write bom to excel
-    write_to_excel(df_bom, "bom_sp")
+    write_to_excel(df_bom_templated, "bom_sp")
 
     
     # Print the head of the dataset
