@@ -19,39 +19,47 @@ if __name__ == "__main__":
     if not found_files:  # Check if list is empty
         print("No excel files found in the directory.")
         sys.exit(1)
-    elif len(found_files) == 1:  # Only one file found
-        print(f"Reading file: {found_files[0]}")  # Print just the filename
-        filepath = os.path.join(input_directory, found_files[0])
-        # Read data and parameters from excel file
-        df_data, df_params = read_altium_excel_file(filepath)
     else:  # Multiple files found
-        print("Multiple Excel files found:")
+        print("Found excel files in the input dir:")
         for i, filename in enumerate(found_files, 1): # Print all filenames
             print(f"{i}. {filename}")
         # Prompt for file number
         while True:
             try:
-                choice = int(input("Enter file number: "))
+                choice = int(input("Enter altium data file number: "))
                 if 1 <= choice <= len(found_files):
                     break
                 print(f"Please enter a number between 1 and {len(found_files)}")
             except ValueError:
                 print("Please enter a valid number.")
         filepath = os.path.join(input_directory, found_files[choice-1])
-        print(f"Reading file: {found_files[choice-1]}")
+        print(f"Reading altium data file: {found_files[choice-1]}")
         # Read data and parameters from excel file
         df_data, df_params = read_altium_excel_file(filepath)
+        while True:
+            try:
+                choice = int(input("Enter bom docs file number: "))
+                if 1 <= choice <= len(found_files):
+                    break
+                print(f"Please enter a number between 1 and {len(found_files)}")
+            except ValueError:
+                print("Please enter a valid number.")
+        filepath = os.path.join(input_directory, found_files[choice-1])
+        print(f"Reading docs file: {found_files[choice-1]}")
+        # Read data and parameters from excel file
+        df_docs = read_excel_file(filepath)
 
     # Read groups.xlsx to dataframe
     filepath = os.path.join("templates", "groups.xlsx")
     if os.path.exists(filepath):
-        df_groups = read_groups_excel_file(filepath)
+        df_groups = read_excel_file(filepath)
     else:
         print(f"File does not exist: {filepath}")
 
     # df_data - data from altium excel
     # df_params - parameters from altium excel
     # df_groups - group names from excel
+    # df_docs - documents for bom from excel
     # df_part_list - sorted part list
     # df_part_list_templated - modified part list for template
     # df_bom - sorted bom
@@ -74,8 +82,8 @@ if __name__ == "__main__":
     # Print the head of the dataset
     #print("\nParameters preview:")
     #print(df_params.head(n=13))
-    # print("\nBom preview:")
-    # print(df_bom.head(n=21))
+    print("\nDocs preview:")
+    print(df_docs)
 
  
     #print(df_bom.head(n=21))

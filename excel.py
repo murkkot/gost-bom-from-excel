@@ -37,7 +37,7 @@ def read_altium_excel_file(filepath):
         sys.exit(1)
 
 # Read groups escel file to dataset
-def read_groups_excel_file(filepath):
+def read_excel_file(filepath):
     try:
         # Read Excel file once and get sheet names
         xls = pd.ExcelFile(filepath)
