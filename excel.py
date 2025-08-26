@@ -257,14 +257,12 @@ def write_part_list_to_template(df_params, df_data, filename):
         print(f"Error occurred: {str(e)}")
 
 # Write part list to template
-def write_bom_to_template(df_params, df_data, df_docs, filename):
+def write_bom_to_template(df_params, df_data, filename):
     SHEET1_ROWS_NUMBER = 28
     SHEETN_ROWS_NUMBER = 31
 
     # Compute number of sheets in template
-    num_rows_data = df_data.shape[0]
-    num_row_docs = df_docs.shape[0]
-    num_rows = num_rows_data + num_row_docs
+    num_rows = df_data.shape[0]
     if num_rows <= SHEET1_ROWS_NUMBER:
         num_sheets = 1
     else:
@@ -313,37 +311,19 @@ def write_bom_to_template(df_params, df_data, df_docs, filename):
         # Write total sheet number
         write_to_merged_cell(ws, 'S37', num_sheets)
 
-        # Write docs to Sheet1 cells C2:R16, C18:R25, C27:R29, C31:R33
-        # Assume docs dataframe fits to the first sheet
+        # Write data to Sheet1 cells C2:R16, C18:R25, C27:R29, C31:R33
+
         row_idx = 0
         for excel_row in chain(range(2, 17), range(18, 26), range(27, 30), range(31, 33)):
             col_idx = 0
             # Cells C, D, F, H, L, Q, R            
             for excel_col in [3, 4, 6, 8, 12, 17, 18]:
                 cell_ref = f"{chr(64 + excel_col)}{excel_row}"
-                cell_value = df_docs.iloc[row_idx, col_idx]
-                col_idx += 1
-                write_to_merged_cell(ws, cell_ref, cell_value)
-            row_idx += 1
-            if row_idx >= num_row_docs:
-                break
-
-        # Write data to Sheet1 cells H2:R16, H18:R25, H27:R29, H31:R33
-
-        row_idx = 0
-        for excel_row in chain(range(2, 17), range(18, 26), range(27, 30), range(31, 33)):
-            col_idx = 0
-            excel_row_adjusted = excel_row + num_row_docs
-            if excel_row > SHEET1_ROWS_NUMBER:
-                break
-            # Cells H, L, Q, R            
-            for excel_col in [8, 12, 17, 18]:
-                cell_ref = f"{chr(64 + excel_col)}{excel_row_adjusted}"
                 cell_value = df_data.iloc[row_idx, col_idx]
                 col_idx += 1
                 write_to_merged_cell(ws, cell_ref, cell_value)
             row_idx += 1
-            if row_idx >= num_rows_data:
+            if row_idx >= num_rows:
                 break
         
         # Set border thickness for broken cells
@@ -366,17 +346,17 @@ def write_bom_to_template(df_params, df_data, df_docs, filename):
                 write_to_merged_cell(ws, 'K37', value)
                 # Write page number to title block
                 write_to_merged_cell(ws, 'O39', i)
-                # Write data to SheetN cells H2:N16, H18:N21, H23:N29, H31:N34, H36:N36
+                # Write data to SheetN cells C2:N16, C18:N21, C23:N29, C31:N34, C36:N36
                 for excel_row in chain(range(2, 17), range(18, 22), range(23, 30), range(31, 35), range(36, 37)):
                     col_idx = 0
-                    # Cells H, L, M, N            
-                    for excel_col in [8, 12, 13, 14]:
+                    # Cells C, D, F, H, L, M, N            
+                    for excel_col in [3, 4, 6, 8, 12, 13, 14]:
                         cell_ref = f"{chr(64 + excel_col)}{excel_row}"
                         cell_value = df_data.iloc[row_idx, col_idx]
                         col_idx += 1
                         write_to_merged_cell(ws, cell_ref, cell_value)
                     row_idx += 1
-                    if row_idx >= num_rows_data:
+                    if row_idx >= num_rows:
                         break
                 # Set border thickness for broken cells
                 # set_border_thickness(ws, 'Q2:Q37')

@@ -94,5 +94,5 @@ if __name__ == "__main__":
     copy_rename_bom_template(bom_file_name)
 
     # # # Write part list to excel
-    # write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
-    # write_bom_to_template(df_params, df_bom_templated, df_docs, bom_file_name)
+    write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
+    write_bom_to_template(df_params, df_bom_templated, bom_file_name)
