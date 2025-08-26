@@ -87,7 +87,7 @@ def extract_group(designator):
 def modify_bom_fields(dataset):
 
     DEGIGNATOR_FIELD_LENGTH = 11
-    NAME_FIELD_LENGTH = 23
+    NAME_FIELD_LENGTH = 35
 
     new_data = []
     
@@ -130,6 +130,8 @@ def modify_bom_fields(dataset):
     if not new_data:
         return pd.DataFrame(columns=dataset.columns)
     
-    return pd.DataFrame(new_data)[dataset.columns.tolist()]
-    
-    #return pd.DataFrame(new_data, columns=dataset.columns)
+    # Create the DataFrame
+    df_result = pd.DataFrame(new_data)[dataset.columns.tolist()]
+    # Replace all NaN values with an empty string
+    df_result = df_result.fillna('')
+    return df_result

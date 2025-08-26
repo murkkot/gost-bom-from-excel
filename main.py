@@ -72,41 +72,30 @@ if __name__ == "__main__":
     # Write part list to excel
     # write_to_excel(df_part_list_templated, "part_list_pe3")
 
+    # Combine bom components
     df_bom = combine_bom_components(df_data)
+    # Sort bom
     df_bom = sort_bom(df_bom, df_groups)
+    # Modify bom for template
     df_bom_templated = modify_bom_fields(df_bom)
+
+    # Write part list to excel
+    write_to_excel(df_part_list_templated, "part_list_pe3")
     # Write bom to excel
     write_to_excel(df_bom_templated, "bom_sp")
 
-    
-    # Print the head of the dataset
-    #print("\nParameters preview:")
-    #print(df_params.head(n=13))
-    print("\nDocs preview:")
-    print(df_docs)
-
- 
-    #print(df_bom.head(n=21))
-
-    # print("\nGroups preview:")
-    # print(df_groups.head(n=10))
-    
-    # print("\nData sorted:")
-    # print(df_result.head(n=20))
-
-    #print("\nDataset modified:")
-    #print(df_newdata.head(n=10))
-    # Write part list to excel
-    #write_to_excel(df_newdata, "part_list_pe3")
-
     # Create file name for part list
-    # part_list_file_name = create_part_list_filename(df_params)
-    # # Create file name for bom
-    # bom_file_name = create_bom_filename(df_params)
-    # # Copy part list template
-    # copy_rename_part_list_template(part_list_file_name)
-    # # Copy bom template
-    # copy_rename_bom_template(bom_file_name)
+    part_list_file_name = create_part_list_filename(df_params)
+    # Create file name for bom
+    bom_file_name = create_bom_filename(df_params)
+    # Copy part list template
+    copy_rename_part_list_template(part_list_file_name)
+    # Copy bom template
+    copy_rename_bom_template(bom_file_name)
 
     # # Write part list to excel
-    # write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
+    write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
+    write_bom_to_template(df_params, df_bom_templated, df_docs, bom_file_name)
+
+    for i in range(180,193):
+        print(df_bom_templated.iloc[i]['Name'])
