@@ -83,6 +83,11 @@ def extract_group(designator):
     result = re.match(r"^[A-Za-z]+", first_designator).group()
     return result
 
+# Concatenate bom and docs
+def concat_bom_and_docs(df_bom, df_docs):
+    df_result = pd.concat([df_docs, df_bom])
+    return df_result
+
 # Modify dataframe's field with according lenght to fit the template
 def modify_bom_fields(dataset):
 

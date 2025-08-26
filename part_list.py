@@ -66,4 +66,7 @@ def modify_part_list_fields(dataset):
             
             new_data.append(new_row)
     
-    return pd.DataFrame(new_data, columns=dataset.columns)
+    df_result = pd.DataFrame(new_data, columns=dataset.columns)
+    # Replace all NaN values with an empty string
+    df_result = df_result.fillna('')
+    return df_result
