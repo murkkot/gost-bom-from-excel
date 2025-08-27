@@ -80,9 +80,9 @@ if __name__ == "__main__":
     df_bom_templated = modify_bom_fields(df_bom)
 
     # Write part list to excel
-    write_to_excel(df_part_list_templated, "part_list_pe3")
+    write_to_excel(df_part_list, "part_list_pe3")
     # Write bom to excel
-    write_to_excel(df_bom_templated, "bom_sp")
+    write_to_excel(df_bom, "bom_sp")
 
     # Create file name for part list
     part_list_file_name = create_document_filename(df_params, PART_LIST_CONFIG)
@@ -93,9 +93,7 @@ if __name__ == "__main__":
     # Copy bom template
     copy_rename_template(bom_file_name, BOM_CONFIG)
 
-    # Write part list to excel
-    #write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
-    #write_bom_to_template(df_params, df_bom_templated, bom_file_name)
-
+    # Write part list to template
     write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
+    # Write bom to template
     write_document_to_template(df_params, df_bom_templated, bom_file_name, BOM_CONFIG)
