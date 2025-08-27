@@ -85,9 +85,9 @@ if __name__ == "__main__":
     write_to_excel(df_bom_templated, "bom_sp")
 
     # Create file name for part list
-    part_list_file_name = create_part_list_filename(df_params)
+    part_list_file_name = create_document_filename(df_params, PART_LIST_CONFIG)
     # Create file name for bom
-    bom_file_name = create_bom_filename(df_params)
+    bom_file_name = create_document_filename(df_params, BOM_CONFIG)
     # Copy part list template
     copy_rename_template(part_list_file_name, PART_LIST_CONFIG)
     # Copy bom template

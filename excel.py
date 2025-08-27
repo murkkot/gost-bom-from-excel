@@ -148,25 +148,22 @@ def write_to_excel(result_df, filename):
         print(f"Error writing Excel file: {str(e)}")
         sys.exit(1)
 
-# Create filename for part list
-def create_part_list_filename(df):
-    result = df.loc[df["Key"] == "Децимальный номер", "Value"].values[0] \
-    + " ПЭ3 (" \
-    + df.loc[df["Key"] == "Наименование 2", "Value"].values[0] \
-    + ") v." \
-    + df.loc[df["Key"] == "Версия", "Value"].values[0] \
-    + "." + df.loc[df["Key"] == "Ревизия ПЭ3", "Value"].values[0] + ".xlsx"
-    return result
+# Create a standardized filename based on parameters from a DataFrame and a config dict
+def create_document_filename(df_params, config):
+    # Get the common values from the DataFrame
+    decimal_num = _get_param_value(df_params, "Децимальный номер")
+    name = _get_param_value(df_params, "Наименование 2")
+    version = _get_param_value(df_params, "Версия")
 
-# Create filename for bom
-def create_bom_filename(df):
-    result = df.loc[df["Key"] == "Децимальный номер", "Value"].values[0] \
-    + " СП (" \
-    + df.loc[df["Key"] == "Наименование 2", "Value"].values[0] \
-    + ") v." \
-    + df.loc[df["Key"] == "Версия", "Value"].values[0] \
-    + "." + df.loc[df["Key"] == "Ревизия СП", "Value"].values[0] + ".xlsx"
-    return result
+    # Get the document-specific values using keys from the config
+    doc_suffix = config["doc_type_suffix"]  # " ПЭ3" or " СП"
+    revision_key = config["revision_key"]   # "Ревизия ПЭ3" or "Ревизия СП"
+    revision_val = _get_param_value(df_params, revision_key)
+
+    # Assemble the filename
+    filename = f"{decimal_num}{doc_suffix} ({name}) v.{version}.{revision_val}.xlsx"
+    
+    return filename
 
 # Copy and rename templates
 def copy_rename_template(filename, config):
