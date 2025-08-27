@@ -11,6 +11,7 @@ from itertools import chain
 
 # --- Configuration for Bill of Materials (BOM) ---
 BOM_CONFIG = {
+    "template_filename": "bom_template.xlsx",
     "doc_type_suffix": " СП",
     "revision_key": "Ревизия СП",
     "sheet1_max_rows": 28,
@@ -42,6 +43,7 @@ BOM_CONFIG = {
 
 # --- Configuration for Part List ---
 PART_LIST_CONFIG = {
+    "template_filename": "part_list_template.xlsx",
     "doc_type_suffix": " ПЭ3",
     "revision_key": "Ревизия ПЭ3",
     "sheet1_max_rows": 29,
@@ -166,33 +168,19 @@ def create_bom_filename(df):
     + "." + df.loc[df["Key"] == "Ревизия СП", "Value"].values[0] + ".xlsx"
     return result
 
-# Copy and rename part list template
-def copy_rename_part_list_template(filename):
-    input_path = Path('templates') / 'part_list_template.xlsx'
+# Copy and rename templates
+def copy_rename_template(filename, config):
+    template_name = config["template_filename"]
+    input_path = Path('templates') / template_name
     output_path = Path('output') / f"{filename}"
-    print(output_path)
+    print(f"Copying '{input_path}' to '{output_path}'")
     try:
         shutil.copy2(input_path, output_path)
         print("File copied and renamed successfully!")
     except FileNotFoundError:
-        print("Error: File or directory not found")
+        print(f"Error: The source file '{input_path}' or directory not found.")
     except PermissionError:
-        print("Error: Permission denied")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-# Copy and rename bom template
-def copy_rename_bom_template(filename):
-    input_path = Path('templates') / 'bom_template.xlsx'
-    output_path = Path('output') / f"{filename}"
-    print(output_path)
-    try:
-        shutil.copy2(input_path, output_path)
-        print("File copied and renamed successfully!")
-    except FileNotFoundError:
-        print("Error: File or directory not found")
-    except PermissionError:
-        print("Error: Permission denied")
+        print(f"Error: Permission denied to access '{input_path}' or write to '{output_path}'.")
     except Exception as e:
         print(f"An error occurred: {e}")
 

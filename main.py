@@ -89,9 +89,9 @@ if __name__ == "__main__":
     # Create file name for bom
     bom_file_name = create_bom_filename(df_params)
     # Copy part list template
-    copy_rename_part_list_template(part_list_file_name)
+    copy_rename_template(part_list_file_name, PART_LIST_CONFIG)
     # Copy bom template
-    copy_rename_bom_template(bom_file_name)
+    copy_rename_template(bom_file_name, BOM_CONFIG)
 
     # Write part list to excel
     #write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
