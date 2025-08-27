@@ -9,6 +9,72 @@ from pathlib import Path
 import shutil
 from itertools import chain
 
+# --- Configuration for Bill of Materials (BOM) ---
+BOM_CONFIG = {
+    "doc_type_suffix": " СП",
+    "revision_key": "Ревизия СП",
+    "sheet1_max_rows": 28,
+    "sheetn_max_rows": 31,
+    "title_block_map": {
+        "Разработал": "G36",
+        "Проверил": "G37",
+        "Нормоконтролёр": "G39",
+        "Утвердил": "G40",
+        "Дата": ["J36", "J37", "J39", "J40"],
+        "Наименование 1": "K37",
+        "Наименование 2": "K38",
+    },
+    "decimal_number_cell": "K33",
+    "version_cell": "K39",
+    "total_sheets_cell": "S37",
+    "sheet1_layout": {
+        "row_ranges": [range(2, 17), range(18, 26), range(27, 30), range(31, 33)],
+        "column_indices": [3, 4, 6, 8, 12, 17, 18],
+    },
+    "sheetn_layout": {
+        "row_ranges": [range(2, 17), range(18, 22), range(23, 30), range(31, 35), range(36, 37)],
+        "column_indices": [3, 4, 6, 8, 12, 13, 14],
+    },
+    "sheetn_decimal_cell": "K37",
+    "sheetn_page_num_cell": "O39",
+    # No border_settings key needed as no action is taken
+}
+
+# --- Configuration for Part List ---
+PART_LIST_CONFIG = {
+    "doc_type_suffix": " ПЭ3",
+    "revision_key": "Ревизия ПЭ3",
+    "sheet1_max_rows": 29,
+    "sheetn_max_rows": 32,
+    "title_block_map": {
+        "Разработал": "E37",
+        "Проверил": "E38",
+        "Нормоконтролёр": "E40",
+        "Утвердил": "E41",
+        "Дата": ["H37", "H38", "H40", "H41"],
+        "Наименование 1": "I38",
+        "Наименование 2": "I39",
+    },
+    "decimal_number_cell": "I34",
+    "version_cell": "I40",
+    "total_sheets_cell": "P38",
+    "sheet1_layout": {
+        "row_ranges": [range(2, 18), range(19, 27), range(28, 31), range(32, 34)],
+        "column_indices": [3, 6, 10],
+    },
+    "sheetn_layout": {
+        "row_ranges": [range(2, 18), range(19, 23), range(24, 31), range(32, 36), range(37, 38)],
+        "column_indices": [3, 6, 10],
+    },
+    "sheetn_decimal_cell": "I38",
+    "sheetn_page_num_cell": "P40",
+    # Simplified post-processing step
+    "border_settings": {
+        "sheet1": "Q2:Q33",
+        "sheetn": "Q2:Q37"
+    }
+}
+
 # Find excel files in named folder
 def find_excel_files(input_dir):
     excel_files = []
@@ -36,7 +102,7 @@ def read_altium_excel_file(filepath):
         print(f"Error reading file {filepath}: {e}")
         sys.exit(1)
 
-# Read groups escel file to dataset
+# Read groups excel file to dataset
 def read_excel_file(filepath):
     try:
         # Read Excel file once and get sheet names
@@ -130,260 +196,6 @@ def copy_rename_bom_template(filename):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-# Write part list to template
-def write_part_list_to_template(df_params, df_data, filename):
-    SHEET1_ROWS_NUMBER = 29
-    SHEETN_ROWS_NUMBER = 32
-    # Compute number of sheets in template
-    num_rows = df_data.shape[0]
-    #print("Num rows: ", num_rows)
-    if num_rows <= SHEET1_ROWS_NUMBER:
-        num_sheets = 1
-    else:
-        num_sheets = math.ceil((num_rows - SHEET1_ROWS_NUMBER) / SHEETN_ROWS_NUMBER) + 1
-    # print("Num sheets: ", num_sheets)
-
-    # Write parameters to title block
-    output_path = Path('output') / f"{filename}"
-    print(output_path)
-    try:
-        # Load the workbook with openpyxl
-        wb = load_workbook(output_path)
-        
-        # Write to Sheet1
-        # Set target sheet
-        target_sheet='Sheet1'
-        if target_sheet not in wb.sheetnames:
-            raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
-        ws = wb[target_sheet]
-
-        # Write parameters to Sheet1
-        value = df_params.loc[df_params["Key"] == "Разработал", "Value"].values[0]
-        write_to_merged_cell(ws, 'E37', value)
-        value = df_params.loc[df_params["Key"] == "Проверил", "Value"].values[0]
-        write_to_merged_cell(ws, 'E38', value)
-        value = df_params.loc[df_params["Key"] == "Нормоконтролёр", "Value"].values[0]
-        write_to_merged_cell(ws, 'E40', value)
-        value = df_params.loc[df_params["Key"] == "Утвердил", "Value"].values[0]
-        write_to_merged_cell(ws, 'E41', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'H37', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'H38', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'H40', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'H41', value)
-        value = df_params.loc[df_params["Key"] == "Наименование 1", "Value"].values[0]
-        write_to_merged_cell(ws, 'I38', value)
-        value = df_params.loc[df_params["Key"] == "Наименование 2", "Value"].values[0]
-        write_to_merged_cell(ws, 'I39', value)
-        value =  'Версия ' + df_params.loc[df_params["Key"] == "Версия", "Value"].values[0] + '.' \
-        + df_params.loc[df_params["Key"] == "Ревизия ПЭ3", "Value"].values[0]
-        write_to_merged_cell(ws, 'I40', value)
-        value = df_params.loc[df_params["Key"] == "Децимальный номер", "Value"].values[0] + ' ПЭ3'
-        write_to_merged_cell(ws, 'I34', value)
-        # Write total sheet number
-        write_to_merged_cell(ws, 'P38', num_sheets)
-
-        # Write data to Sheet1 cells C2:J17, C19:J26, C28:J30, C32:J33
-
-        row_idx = 0
-        for excel_row in chain(range(2, 18), range(19, 27), range(28, 31), range(32, 34)):
-            col_idx = 0
-            # Cells C, F, J            
-            for excel_col in [3, 6, 10]:
-                cell_ref = f"{chr(64 + excel_col)}{excel_row}"
-                cell_value = df_data.iloc[row_idx, col_idx]
-                col_idx += 1
-                write_to_merged_cell(ws, cell_ref, cell_value)
-            row_idx += 1
-            if row_idx >= num_rows:
-                break
-        
-        # Set border thickness for broken cells
-        set_border_thickness(ws, 'Q2:Q33')
-        
-        # Write data and parameters to SheetN
-        if num_sheets > 1:
-            for i in range(2, num_sheets + 1):
-                # Select current sheet
-                target_sheet = f"Sheet{i}"
-                if i > 2:
-                    # Add sheet
-                    ws = wb['Sheet2']
-                    target = wb.copy_worksheet(ws)
-                    target.title = target_sheet
-                if target_sheet not in wb.sheetnames:
-                    raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
-                ws = wb[target_sheet]
-                # Write decimal number to title block
-                write_to_merged_cell(ws, 'I38', value)
-                # Write page number to title block
-                write_to_merged_cell(ws, 'P40', i)
-                # Write data to SheetN cells C2:J17, C19:J22, C24:J30, C32:J35, C37:J37
-                #row_idx = SHEET1_ROWS_NUMBER + (i - 2) * SHEETN_ROWS_NUMBER
-                for excel_row in chain(range(2, 18), range(19, 23), range(24, 31), range(32, 36), range(37, 38)):
-                    col_idx = 0
-                    # Cells C, F, J            
-                    for excel_col in [3, 6, 10]:
-                        cell_ref = f"{chr(64 + excel_col)}{excel_row}"
-                        cell_value = df_data.iloc[row_idx, col_idx]
-                        col_idx += 1
-                        write_to_merged_cell(ws, cell_ref, cell_value)
-                    row_idx += 1
-                    if row_idx >= num_rows:
-                        break
-                # Set border thickness for broken cells
-                set_border_thickness(ws, 'Q2:Q37')
-        else:
-            # If only one sheet, delete Sheet2
-            sheet_name = "Sheet2"
-            if sheet_name in wb.sheetnames:
-            # Remove the sheet
-                del wb[sheet_name]
-                print(f"Sheet '{sheet_name}' deleted successfully.")
-            else:
-                print(f"Sheet '{sheet_name}' not found in the workbook.")
-          
-        # Save workbook
-        wb.save(output_path)
- 
-    except FileNotFoundError:
-        print("Error: File or directory not found")
-    except PermissionError:
-        print("Error: Permission denied")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
-
-# Write bom to template
-def write_bom_to_template(df_params, df_data, filename):
-    SHEET1_ROWS_NUMBER = 28
-    SHEETN_ROWS_NUMBER = 31
-
-    # Compute number of sheets in template
-    num_rows = df_data.shape[0]
-    if num_rows <= SHEET1_ROWS_NUMBER:
-        num_sheets = 1
-    else:
-        num_sheets = math.ceil((num_rows - SHEET1_ROWS_NUMBER) / SHEETN_ROWS_NUMBER) + 1
-
-    # Write parameters to title block
-    output_path = Path('output') / f"{filename}"
-    print(output_path)
-    try:
-        # Load the workbook with openpyxl
-        wb = load_workbook(output_path)
-        # Copy empty Sheet2 for clean template
-        if num_sheets > 2:
-            if 'Sheet2' in wb.sheetnames:
-                template_source = wb.copy_worksheet(wb['Sheet2'])
-                template_source.title = "template_temp"
-            else:
-                raise ValueError("The template must contain a 'Sheet2' for multi-page output.")
-        
-        # Write to Sheet1
-        # Set target sheet
-        target_sheet='Sheet1'
-        if target_sheet not in wb.sheetnames:
-            raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
-        ws = wb[target_sheet]
-
-        # Write parameters to Sheet1
-        value = df_params.loc[df_params["Key"] == "Разработал", "Value"].values[0]
-        write_to_merged_cell(ws, 'G36', value)
-        value = df_params.loc[df_params["Key"] == "Проверил", "Value"].values[0]
-        write_to_merged_cell(ws, 'G37', value)
-        value = df_params.loc[df_params["Key"] == "Нормоконтролёр", "Value"].values[0]
-        write_to_merged_cell(ws, 'G39', value)
-        value = df_params.loc[df_params["Key"] == "Утвердил", "Value"].values[0]
-        write_to_merged_cell(ws, 'G40', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'J36', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'J37', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'J39', value)
-        value = df_params.loc[df_params["Key"] == "Дата", "Value"].values[0]
-        write_to_merged_cell(ws, 'J40', value)
-        value = df_params.loc[df_params["Key"] == "Наименование 1", "Value"].values[0]
-        write_to_merged_cell(ws, 'K37', value)
-        value = df_params.loc[df_params["Key"] == "Наименование 2", "Value"].values[0]
-        write_to_merged_cell(ws, 'K38', value)
-        value =  'Версия ' + df_params.loc[df_params["Key"] == "Версия", "Value"].values[0] + '.' \
-        + df_params.loc[df_params["Key"] == "Ревизия СП", "Value"].values[0]
-        write_to_merged_cell(ws, 'K39', value)
-        value = df_params.loc[df_params["Key"] == "Децимальный номер", "Value"].values[0] + ' СП'
-        write_to_merged_cell(ws, 'K33', value)
-        # Write total sheet number
-        write_to_merged_cell(ws, 'S37', num_sheets)
-
-        # Write data to Sheet1 cells C2:R16, C18:R25, C27:R29, C31:R33
-
-        row_idx = 0
-        for excel_row in chain(range(2, 17), range(18, 26), range(27, 30), range(31, 33)):
-            col_idx = 0
-            # Cells C, D, F, H, L, Q, R            
-            for excel_col in [3, 4, 6, 8, 12, 17, 18]:
-                cell_ref = f"{chr(64 + excel_col)}{excel_row}"
-                cell_value = df_data.iloc[row_idx, col_idx]
-                col_idx += 1
-                write_to_merged_cell(ws, cell_ref, cell_value)
-            row_idx += 1
-            if row_idx >= num_rows:
-                break
-        
-        # Write data and parameters to SheetN
-        if num_sheets > 1:
-            for i in range(2, num_sheets + 1):
-                # Select current sheet
-                target_sheet = f"Sheet{i}"
-                if i == 2: # Use existing Sheet2
-                    if target_sheet not in wb.sheetnames:
-                        raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
-                    # Add sheet
-                    ws = wb[target_sheet]
-                else: # if i > 2 use template sheet
-                    ws = wb.copy_worksheet(wb["template_temp"])
-                    ws.title = target_sheet
-                # Write decimal number to title block
-                write_to_merged_cell(ws, 'K37', value)
-                # Write page number to title block
-                write_to_merged_cell(ws, 'O39', i)
-                # Write data to SheetN cells C2:N16, C18:N21, C23:N29, C31:N34, C36:N36
-                for excel_row in chain(range(2, 17), range(18, 22), range(23, 30), range(31, 35), range(36, 37)):
-                    col_idx = 0
-                    # Cells C, D, F, H, L, M, N            
-                    for excel_col in [3, 4, 6, 8, 12, 13, 14]:
-                        cell_ref = f"{chr(64 + excel_col)}{excel_row}"
-                        cell_value = df_data.iloc[row_idx, col_idx]
-                        col_idx += 1
-                        write_to_merged_cell(ws, cell_ref, cell_value)
-                    row_idx += 1
-                    if row_idx >= num_rows:
-                        break
-            if num_sheets > 2 and "template_temp" in wb.sheetnames:
-                del wb["template_temp"]
-        else:
-            # If only one sheet, delete Sheet2
-            sheet_name = "Sheet2"
-            if sheet_name in wb.sheetnames:
-            # Remove the sheet
-                del wb[sheet_name]
-                print(f"Sheet '{sheet_name}' deleted successfully.")
-            else:
-                print(f"Sheet '{sheet_name}' not found in the workbook.")
-          
-        # Save workbook
-        wb.save(output_path)
- 
-    except FileNotFoundError:
-        print("Error: File or directory not found")
-    except PermissionError:
-        print("Error: Permission denied")
-    except Exception as e:
-        print(f"Error occurred: {str(e)}")
-
 # Write to merged cell
 def write_to_merged_cell(ws, cell_ref, value):
     # Writes to the top-left cell of a merged range
@@ -413,3 +225,112 @@ def set_border_thickness(ws, range):
                 right=current_border.right,
                 bottom=current_border.bottom
             )
+
+# Get a value from the parameters DataFrame
+def _get_param_value(df_params, key):
+    try:
+        return df_params.loc[df_params["Key"] == key, "Value"].values[0]
+    except IndexError:
+        raise ValueError(f"Parameter key '{key}' not found in df_params.")
+
+# Write a chunk of data to a sheet based on the layout config
+def _write_data_chunk(ws, df_data, start_row_idx, layout_config):
+    row_idx = start_row_idx
+    num_rows = df_data.shape[0]
+    
+    for excel_row in chain(*layout_config["row_ranges"]):
+        if row_idx >= num_rows:
+            break
+        col_idx = 0
+        for excel_col in layout_config["column_indices"]:
+            cell_ref = f"{chr(64 + excel_col)}{excel_row}"
+            cell_value = df_data.iloc[row_idx, col_idx]
+            write_to_merged_cell(ws, cell_ref, cell_value)
+            col_idx += 1
+        row_idx += 1
+    return row_idx
+
+# Write part list or bom to template according to config dictionary
+def write_document_to_template(df_params, df_data, filename, config):
+    # 1. Calculate number of sheets from config
+    num_rows = df_data.shape[0]
+    if num_rows <= config["sheet1_max_rows"]:
+        num_sheets = 1
+    else:
+        num_sheets = math.ceil((num_rows - config["sheet1_max_rows"]) / config["sheetn_max_rows"]) + 1
+
+    output_path = Path('output') / filename
+    print(f"Processing file: {output_path} with {num_sheets} sheet(s).")
+
+    try:
+        wb = load_workbook(output_path)
+        
+        # 2. Prepare multi-sheet template if needed
+        if num_sheets > 1:
+            if 'Sheet2' not in wb.sheetnames:
+                raise ValueError("Template must contain a 'Sheet2' for multi-page output.")
+            if num_sheets > 2:
+                template_source = wb.copy_worksheet(wb['Sheet2'])
+                template_source.title = "template_temp"
+
+        # --- Process Sheet 1 ---
+        ws = wb['Sheet1']
+
+        # 3. Write parameters to Sheet1 title block
+        for key, cell in config["title_block_map"].items():
+            value = _get_param_value(df_params, key)
+            if isinstance(cell, list):
+                for c in cell:
+                    write_to_merged_cell(ws, c, value)
+            else:
+                write_to_merged_cell(ws, cell, value)
+
+        version_val = 'Версия ' + _get_param_value(df_params, "Версия") + '.' + _get_param_value(df_params, config["revision_key"])
+        write_to_merged_cell(ws, config["version_cell"], version_val)
+        decimal_val = _get_param_value(df_params, "Децимальный номер") + config["doc_type_suffix"]
+        write_to_merged_cell(ws, config["decimal_number_cell"], decimal_val)
+        write_to_merged_cell(ws, config["total_sheets_cell"], num_sheets)
+
+        # 4. Write data to Sheet1
+        current_row_idx = _write_data_chunk(ws, df_data, 0, config["sheet1_layout"])
+
+        # 5. [MODIFIED] Run post-processing for Sheet1 if defined
+        border_settings = config.get("border_settings")
+        if border_settings and "sheet1" in border_settings:
+            set_border_thickness(ws, border_settings["sheet1"])
+
+        # --- Process Subsequent Sheets (SheetN) ---
+        if num_sheets > 1:
+            for i in range(2, num_sheets + 1):
+                target_sheet_name = f"Sheet{i}"
+                if i == 2:
+                    ws_n = wb[target_sheet_name]
+                else:
+                    ws_n = wb.copy_worksheet(wb["template_temp"])
+                    ws_n.title = target_sheet_name
+                
+                write_to_merged_cell(ws_n, config["sheetn_decimal_cell"], decimal_val)
+                write_to_merged_cell(ws_n, config["sheetn_page_num_cell"], i)
+                
+                current_row_idx = _write_data_chunk(ws_n, df_data, current_row_idx, config["sheetn_layout"])
+
+                if border_settings and "sheetn" in border_settings:
+                    set_border_thickness(ws_n, border_settings["sheetn"])
+        
+        # 6. Cleanup
+        if "template_temp" in wb.sheetnames:
+            del wb["template_temp"]
+        if num_sheets == 1 and "Sheet2" in wb.sheetnames:
+            del wb["Sheet2"]
+            print("Sheet 'Sheet2' deleted successfully.")
+
+        # 7. Save Workbook
+        wb.save(output_path)
+        print("Workbook saved successfully.")
+
+    except FileNotFoundError:
+        print(f"Error: File or directory not found at {output_path}")
+    except PermissionError:
+        print(f"Error: Permission denied to write to {output_path}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {str(e)}")

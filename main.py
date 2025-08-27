@@ -84,15 +84,18 @@ if __name__ == "__main__":
     # Write bom to excel
     write_to_excel(df_bom_templated, "bom_sp")
 
-    # # Create file name for part list
+    # Create file name for part list
     part_list_file_name = create_part_list_filename(df_params)
-    # # Create file name for bom
+    # Create file name for bom
     bom_file_name = create_bom_filename(df_params)
-    # # Copy part list template
+    # Copy part list template
     copy_rename_part_list_template(part_list_file_name)
-    # # Copy bom template
+    # Copy bom template
     copy_rename_bom_template(bom_file_name)
 
-    # # # Write part list to excel
-    write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
-    write_bom_to_template(df_params, df_bom_templated, bom_file_name)
+    # Write part list to excel
+    #write_part_list_to_template(df_params, df_part_list_templated, part_list_file_name)
+    #write_bom_to_template(df_params, df_bom_templated, bom_file_name)
+
+    write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
+    write_document_to_template(df_params, df_bom_templated, bom_file_name, BOM_CONFIG)
