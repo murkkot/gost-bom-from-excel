@@ -3,8 +3,11 @@ import sys
 from excel import *
 from part_list import *
 from bom import *
+from _version import __version__
 
 if __name__ == "__main__":
+    # Print version
+    print(f"gost-bom-from-excel v.{__version__}")
     # Define the static input folder inside the program directory
     input_directory = os.path.join(os.path.dirname(__file__), "input")
 
@@ -80,9 +83,9 @@ if __name__ == "__main__":
     df_bom_templated = modify_bom_fields(df_bom)
 
     # Write part list to excel
-    write_to_excel(df_part_list, "part_list_pe3")
+    # write_to_excel(df_part_list, "part_list_pe3")
     # Write bom to excel
-    write_to_excel(df_bom, "bom_sp")
+    # write_to_excel(df_bom, "bom_sp")
 
     # Create file name for part list
     part_list_file_name = create_document_filename(df_params, PART_LIST_CONFIG)
