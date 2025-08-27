@@ -256,7 +256,7 @@ def write_part_list_to_template(df_params, df_data, filename):
     except Exception as e:
         print(f"Error occurred: {str(e)}")
 
-# Write part list to template
+# Write bom to template
 def write_bom_to_template(df_params, df_data, filename):
     SHEET1_ROWS_NUMBER = 28
     SHEETN_ROWS_NUMBER = 31
@@ -274,6 +274,13 @@ def write_bom_to_template(df_params, df_data, filename):
     try:
         # Load the workbook with openpyxl
         wb = load_workbook(output_path)
+        # Copy empty Sheet2 for clean template
+        if num_sheets > 2:
+            if 'Sheet2' in wb.sheetnames:
+                template_source = wb.copy_worksheet(wb['Sheet2'])
+                template_source.title = "template_temp"
+            else:
+                raise ValueError("The template must contain a 'Sheet2' for multi-page output.")
         
         # Write to Sheet1
         # Set target sheet
@@ -326,22 +333,19 @@ def write_bom_to_template(df_params, df_data, filename):
             if row_idx >= num_rows:
                 break
         
-        # Set border thickness for broken cells
-        # set_border_thickness(ws, 'Q2:Q33')
-        
         # Write data and parameters to SheetN
         if num_sheets > 1:
             for i in range(2, num_sheets + 1):
                 # Select current sheet
                 target_sheet = f"Sheet{i}"
-                if i > 2:
+                if i == 2: # Use existing Sheet2
+                    if target_sheet not in wb.sheetnames:
+                        raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
                     # Add sheet
-                    ws = wb['Sheet2']
-                    target = wb.copy_worksheet(ws)
-                    target.title = target_sheet
-                if target_sheet not in wb.sheetnames:
-                    raise ValueError(f"Sheet '{target_sheet}' not found in workbook")
-                ws = wb[target_sheet]
+                    ws = wb[target_sheet]
+                else: # if i > 2 use template sheet
+                    ws = wb.copy_worksheet(wb["template_temp"])
+                    ws.title = target_sheet
                 # Write decimal number to title block
                 write_to_merged_cell(ws, 'K37', value)
                 # Write page number to title block
@@ -358,8 +362,8 @@ def write_bom_to_template(df_params, df_data, filename):
                     row_idx += 1
                     if row_idx >= num_rows:
                         break
-                # Set border thickness for broken cells
-                # set_border_thickness(ws, 'Q2:Q37')
+            if num_sheets > 2 and "template_temp" in wb.sheetnames:
+                del wb["template_temp"]
         else:
             # If only one sheet, delete Sheet2
             sheet_name = "Sheet2"
