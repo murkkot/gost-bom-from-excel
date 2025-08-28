@@ -8,8 +8,20 @@ from _version import __version__
 if __name__ == "__main__":
     # Print version
     print(f"gost-bom-from-excel v.{__version__}")
+
+    # Determine the base path, works for both development and PyInstaller
+    if getattr(sys, 'frozen', False):
+        # If run as a bundle, the base path is the directory of the executable
+        base_path = os.path.dirname(sys.executable)
+    else:
+        # If run as a script, the base path is the script's directory
+        base_path = os.path.dirname(os.path.abspath(__file__))
+
+
     # Define the static input folder inside the program directory
-    input_directory = os.path.join(os.path.dirname(__file__), "input")
+    input_directory = os.path.join(base_path, "input")
+    templates_directory = os.path.join(base_path, "templates")
+    output_directory = os.path.join(base_path, "output")
 
     # Check that dir exists
     if os.path.isdir(input_directory):
@@ -52,8 +64,8 @@ if __name__ == "__main__":
         # Read data and parameters from excel file
         df_docs = read_excel_file(filepath)
 
-    # Read groups.xlsx to dataframe
-    filepath = os.path.join("templates", "groups.xlsx")
+    # Read groups.xlsx to from templates directory dataframe
+    filepath = os.path.join(templates_directory, "groups.xlsx")
     if os.path.exists(filepath):
         df_groups = read_excel_file(filepath)
     else:
@@ -92,9 +104,9 @@ if __name__ == "__main__":
     # Create file name for bom
     bom_file_name = create_document_filename(df_params, BOM_CONFIG)
     # Copy part list template
-    copy_rename_template(part_list_file_name, PART_LIST_CONFIG)
+    copy_rename_template(templates_directory, output_directory, part_list_file_name, PART_LIST_CONFIG)
     # Copy bom template
-    copy_rename_template(bom_file_name, BOM_CONFIG)
+    copy_rename_template(templates_directory, output_directory, bom_file_name, BOM_CONFIG)
 
     # Write part list to template
     write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
