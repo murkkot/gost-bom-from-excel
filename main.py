@@ -112,3 +112,5 @@ if __name__ == "__main__":
     write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
     # Write bom to template
     write_document_to_template(df_params, df_bom_templated, bom_file_name, BOM_CONFIG)
+    print("Program executed successfully")
+    input("Press any key to exit")
