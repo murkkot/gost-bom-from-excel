@@ -49,7 +49,6 @@ if __name__ == "__main__":
                 print("Please enter a valid number.")
         filepath = os.path.join(input_directory, found_files[choice-1])
         print(f"Reading docs file: {found_files[choice-1]}")
-        # Read data and parameters from excel file
         df_docs = read_excel_file(filepath)
 
     # Read groups.xlsx to dataframe
@@ -75,13 +74,14 @@ if __name__ == "__main__":
 
     # Combine bom components
     df_bom = combine_bom_components(df_data)
+
     # Sort bom
     df_bom = sort_bom(df_bom, df_groups)
     # Concat docs and bom
     df_bom = concat_bom_and_docs(df_bom, df_docs)
     # Modify bom for template
     df_bom_templated = modify_bom_fields(df_bom)
-
+ 
     # Write part list to excel
     # write_to_excel(df_part_list, "part_list_pe3")
     # Write bom to excel

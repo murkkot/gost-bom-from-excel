@@ -139,4 +139,5 @@ def modify_bom_fields(dataset):
     df_result = pd.DataFrame(new_data)[dataset.columns.tolist()]
     # Replace all NaN values with an empty string
     df_result = df_result.fillna('')
+    df_result = df_result.reset_index(drop=True)
     return df_result

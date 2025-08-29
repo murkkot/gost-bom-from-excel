@@ -1,5 +1,10 @@
-/input/*.xls
-/input/*.xlsx
-/output/*.xls
-/output/*.xlsx
+input/*.xls
+input/*.xlsx
+output/*.xls
+output/*.xlsx
 __pycache__/
+
+# pyinstaller
+build/
+dist/
+main.spec
