@@ -166,10 +166,10 @@ def create_document_filename(df_params, config):
     return filename
 
 # Copy and rename templates
-def copy_rename_template(filename, config):
+def copy_rename_template(templates_directory, output_directory, filename, config):
     template_name = config["template_filename"]
-    input_path = Path('templates') / template_name
-    output_path = Path('output') / f"{filename}"
+    input_path = os.path.join(templates_directory, template_name)
+    output_path = os.path.join(output_directory, filename)
     print(f"Copying '{input_path}' to '{output_path}'")
     try:
         shutil.copy2(input_path, output_path)
