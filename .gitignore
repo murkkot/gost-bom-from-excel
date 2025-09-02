@@ -4,6 +4,9 @@ output/*.xls
 output/*.xlsx
 __pycache__/
 
+# pytest
+test-reports/
+
 # pyinstaller
 build/
 dist/
