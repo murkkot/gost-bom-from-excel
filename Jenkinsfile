@@ -4,6 +4,7 @@ pipeline {
         stage("test") {
             steps {
                 echo 'testing...'
+                sh "pytest -v"
             }
         }
         stage("build") {
