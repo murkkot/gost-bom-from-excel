@@ -3,9 +3,11 @@ input/*.xlsx
 output/*.xls
 output/*.xlsx
 __pycache__/
+venv/
 
 # pytest
 test-reports/
+.pytest_cache/
 
 # pyinstaller
 build/
