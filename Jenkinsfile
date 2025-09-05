@@ -26,14 +26,14 @@ pipeline {
         stage("build") {
             agent {
                 docker {
-                    image 'emenegro/pyinstaller-windows:python3'
+                    image 'cdrx/pyinstaller-windows:python3'
                     args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
                 echo 'building...'
-                sh """
-                    pip install -r requirements.txt
+                sh """  
+                    pip install --user -r requirements.txt
                     pyinstaller --clean --onefile main.py
                 """
             }
