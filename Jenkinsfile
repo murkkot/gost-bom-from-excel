@@ -28,7 +28,11 @@ pipeline {
             steps {
                 echo 'building...'
                 sh """
-                    docker run --rm -v "/var/jenkins-home/workspace/gost-bom-from-excel:/src" cdrx/pyinstaller-windows:python3 "pyinstaller --clean --onefile main.py"
+                    docker run --rm \
+                    -v "${WORKSPACE}:/src" \
+                    -w /src \
+                    cdrx/pyinstaller-windows:python3 \
+                    "pyinstaller --clean --onefile path/to/main.py"
                 """
             }
         }
