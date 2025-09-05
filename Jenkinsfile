@@ -32,7 +32,7 @@ pipeline {
                     -v "${WORKSPACE}:/src" \
                     -w /src \
                     cdrx/pyinstaller-windows:python3 \
-                    "pyinstaller --clean --onefile path/to/main.py"
+                    "pyinstaller --clean --onefile gost-bom-from-excel/main.py"
                 """
             }
         }
