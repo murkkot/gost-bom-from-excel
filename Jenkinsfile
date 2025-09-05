@@ -24,19 +24,10 @@ pipeline {
             }
         }
         stage("build") {
-            agent {
-                docker {
-                    image 'cdrx/pyinstaller-windows:python3'
-                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
+            agent any
             steps {
                 echo 'building...'
-                sh """  
-                    wine python.exe -m pip install -r requirements.txt
-                    wine python.exe -m pip install pyinstaller
-                    wine pyinstaller --clean --onefile main.py
-                """
+                sh "docker run --rm -v "$PWD:/src" cdrx/pyinstaller-windows:python3 "pyinstaller --clean --onefile main.py""
             }
         }
         stage("release") {
