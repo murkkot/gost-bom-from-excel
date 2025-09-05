@@ -27,7 +27,9 @@ pipeline {
             agent any
             steps {
                 echo 'building...'
-                sh "docker run --rm -v "$PWD:/src" cdrx/pyinstaller-windows:python3 "pyinstaller --clean --onefile main.py""
+                sh """
+                    docker run --rm -v "$PWD:/src" cdrx/pyinstaller-windows:python3 "pyinstaller --clean --onefile main.py"
+                """
             }
         }
         stage("release") {
