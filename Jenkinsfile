@@ -27,6 +27,7 @@ pipeline {
             agent any
             steps {
                 echo 'building...'
+                echo "${WORKSPACE}"
                 sh """
                     docker run --rm \
                     -v "${WORKSPACE}:/src" \
