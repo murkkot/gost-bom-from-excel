@@ -12,10 +12,9 @@ pipeline {
                 echo 'testing...'
                 sh """
                     python -m venv venv
-                    source venv/bin/activate
-                    pip install -r requirements.txt
-                    pip install pytest
-                    pytest --junit-xml=test-reports/results.xml
+                    venv/bin/pip install -r requirements.txt
+                    venv/bin/pip install pytest
+                    venv/bin/pytest --junit-xml=test-reports/results.xml
                 """
             }
             post {
