@@ -10,9 +10,13 @@ pipeline {
             }
             steps {
                 echo 'testing...'
-                sh "pip install -r requirements.txt"
-                sh "pip install pytest"
-                sh "pytest --junit-xml=test-reports/results.xml"
+                sh """
+                    python -m venv venv
+                    source venv/bin/activate
+                    pip install -r requirements.txt
+                    pip install pytest
+                    pytest --junit-xml=test-reports/results.xml
+                """
             }
             post {
                 always {
