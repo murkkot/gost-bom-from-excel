@@ -33,9 +33,8 @@ pipeline {
             steps {
                 echo 'building...'
                 sh """
-                    python -m venv venv
-                    venv/bin/pip install -r requirements.txt
-                    venv/bin/pyinstaller --clean --onefile main.py
+                    pip install -r requirements.txt
+                    pyinstaller --clean --onefile main.py
                 """
             }
         }
