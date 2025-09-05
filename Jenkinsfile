@@ -33,6 +33,7 @@ pipeline {
             steps {
                 echo 'building...'
                 sh """
+                    export PYTHONUNBUFFERED=1
                     pip install -r requirements.txt
                     pyinstaller --clean --onefile main.py
                 """
