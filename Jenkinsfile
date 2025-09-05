@@ -32,10 +32,9 @@ pipeline {
             }
             steps {
                 echo 'building...'
-                sh """
-                    python -m venv venv
-                    venv/Scripts/pip install -r requirements.txt
-                    venv/Scripts/pyinstaller --clean --onefile main.py
+                sh """  
+                    pip install --user -r requirements.txt
+                    /root/.wine/drive_c/users/root/AppData/Roaming/Python/Python38/Scripts/pyinstaller --clean --onefile main.py
                 """
             }
         }
