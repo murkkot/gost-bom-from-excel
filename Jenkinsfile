@@ -27,7 +27,7 @@ pipeline {
             agent {
                 docker {
                     image 'cdrx/pyinstaller-windows:python3'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
+                    args '-u root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
             steps {
