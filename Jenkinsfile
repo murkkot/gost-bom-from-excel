@@ -33,9 +33,9 @@ pipeline {
             steps {
                 echo 'building...'
                 sh """
-                    export PYTHONUNBUFFERED=1
-                    pip install --user -r requirements.txt
-                    pyinstaller --clean --onefile main.py
+                    python -m venv venv
+                    venv/Scripts/pip install -r requirements.txt
+                    venv/Scripts/pyinstaller --clean --onefile main.py
                 """
             }
         }
