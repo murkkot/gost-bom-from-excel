@@ -34,7 +34,7 @@ pipeline {
                 echo 'building...'
                 sh """
                     export PYTHONUNBUFFERED=1
-                    pip install -r requirements.txt
+                    pip install --user -r requirements.txt
                     pyinstaller --clean --onefile main.py
                 """
             }
