@@ -10,9 +10,12 @@ pipeline {
             }
             steps {
                 echo 'testing...'
-                sh "pip install -r requirements.txt"
-                sh "pip install pytest"
-                sh "pytest --junit-xml=test-reports/results.xml"
+                sh """
+                    python -m venv venv
+                    venv/bin/pip install -r requirements.txt
+                    venv/bin/pip install pytest
+                    venv/bin/pytest --junit-xml=test-reports/results.xml
+                """
             }
             post {
                 always {
@@ -21,16 +24,17 @@ pipeline {
             }
         }
         stage("build") {
-            agent {
-                docker {
-                    image 'cdrx/pyinstaller-windows:python3'
-                    args '-v /var/run/docker.sock:/var/run/docker.sock'
-                }
-            }
+            agent any
             steps {
                 echo 'building...'
-                sh "pip install -r requirements.txt"
-                sh "pyinstaller --clean --onefile main.py"
+                echo "${WORKSPACE}"
+                sh """
+                    docker run --rm \
+                    -v "/mnt/ssdpci/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src" \
+                    -w /src \
+                    cdrx/pyinstaller-windows:python3 \
+                    "pyinstaller --clean --onefile main.py"
+                """
             }
         }
         stage("release") {
