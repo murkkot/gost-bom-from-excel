@@ -2,16 +2,22 @@ pipeline {
     agent none
     stages {
         stage("checkout scm"){
-            checkout scm
+            agent any
+            steps {
+                checkout scm
+            }
         }
         stage("read version number") {
-            script {
-                def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim()
-                def buildNumberOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+' | tail -1", returnStdout: true).trim()
-                env.VERSION = versionOutput
-                env.BUILD_NUMBER = buildNumberOutput
-                echo "VERSION is ${env.VERSION}"
-                echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
+            agent any
+            steps {
+                script {
+                    def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim()
+                    def buildNumberOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+' | tail -1", returnStdout: true).trim()
+                    env.VERSION = versionOutput
+                    env.BUILD_NUMBER = buildNumberOutput
+                    echo "VERSION is ${env.VERSION}"
+                    echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
+                }
             }
         }
         stage("test") {
@@ -51,14 +57,17 @@ pipeline {
             }
         }
         stage("archive artifact") {
-            sh """
-                mkdir -p release/input
-                mkdir -p release/output
-                cp -r dist/main.exe templates release
-                tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
-            """
-            archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
-            sh "rm -r release"
+            agent any
+            steps {
+                sh """
+                    mkdir -p release/input
+                    mkdir -p release/output
+                    cp -r dist/main.exe templates release
+                    tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
+                """
+                archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
+                sh "rm -r release"
+            }
         }
         stage("release") {
             agent any
