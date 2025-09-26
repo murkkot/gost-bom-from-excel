@@ -84,7 +84,7 @@ pipeline {
                         git config user.email "jenkins@server"
                         git add _version.py
                         git commit -m "Update version file from Jenkins build ${BUILD_NUMBER}"
-                        git push origin main
+                        git push origin HEAD:main
                     """
                 }
             }
