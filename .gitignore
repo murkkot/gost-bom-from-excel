@@ -5,6 +5,7 @@ output/*.xlsx
 __pycache__/
 venv/
 release/
+*.tar
 
 # pytest
 test-reports/
