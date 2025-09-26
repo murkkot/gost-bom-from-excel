@@ -4,6 +4,7 @@ output/*.xls
 output/*.xlsx
 __pycache__/
 venv/
+release/
 
 # pytest
 test-reports/
