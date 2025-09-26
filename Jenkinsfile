@@ -68,7 +68,7 @@ pipeline {
                     mkdir -p release/output
                     cp -r dist/main.exe templates release
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
-                    echo "__version__ = \"${env.VERSION} build ${env.BUILD_NUMBER}\"" > _version.py
+                    echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
                 sh "rm -r release"
