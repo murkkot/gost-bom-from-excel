@@ -16,7 +16,7 @@ pipeline {
             steps {
                 echo 'reading version number...'
                 script {
-                    def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim())
+                    def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim()
                     env.VERSION = versionOutput
                     echo "VERSION is ${env.VERSION}"
                     echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
@@ -68,9 +68,25 @@ pipeline {
                     mkdir -p release/output
                     cp -r dist/main.exe templates release
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
+                    echo "__version__ = \"${env.VERSION} build ${env.BUILD_NUMBER}\"" > _version.py
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
                 sh "rm -r release"
+            }
+        }
+        stage("push version file") {
+            agent any
+            steps {
+                echo 'pushing version file...'
+                withCredentials([gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')]) {
+                    sh """
+                        git config user.name "jenkins-cli"
+                        git config user.email "jenkins@server"
+                        git add _version.py
+                        git commit -m "Update version file from Jenkins build ${BUILD_NUMBER}"
+                        git push origin main
+                    """
+                }
             }
         }
         stage("release") {
