@@ -1,20 +1,23 @@
 pipeline {
     agent none
+    options {
+        skipDefaultCheckout()
+    }
     stages {
         stage("checkout scm"){
             agent any
             steps {
+                echo 'checking out scm...'
                 checkout scm
             }
         }
         stage("read version number") {
             agent any
             steps {
+                echo 'reading version number...'
                 script {
-                    def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim()
-                    def buildNumberOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+' | tail -1", returnStdout: true).trim()
+                    def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim())
                     env.VERSION = versionOutput
-                    env.BUILD_NUMBER = buildNumberOutput
                     echo "VERSION is ${env.VERSION}"
                     echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
                 }
@@ -59,6 +62,7 @@ pipeline {
         stage("archive artifact") {
             agent any
             steps {
+                echo 'archiving...'
                 sh """
                     mkdir -p release/input
                     mkdir -p release/output
