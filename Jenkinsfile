@@ -7,7 +7,7 @@ pipeline {
         stage("checkout scm"){
             agent any
             steps {
-                echo 'checking out scm...'
+                echo 'checking out scm....'
                 checkout scm
             }
         }
