@@ -99,5 +99,11 @@ pipeline {
                 }
             }
         }
+        stage("clean") {
+            steps {
+                echo 'cleaning files...'
+                sh  "rm gbfe_*.tar"
+            }
+        }
     }
 }
