@@ -78,9 +78,15 @@ pipeline {
                 script {
                     sh 'git fetch --tags'
                     def tag = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
+                    sh 'printenv | grep -i git || echo "No GIT env vars found"'
+                    echo "GIT_COMMIT: ${env.GIT_COMMIT ?: 'NOT SET'}"
+                    echo "GIT_BRANCH: ${env.GIT_BRANCH ?: 'NOT SET'}"
+                    echo "Tag found: ${tag ?: 'NO TAG'}"
                     if (tag) {
                         echo "Building release for tag: ${tag}"
                         sh "mv gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar gost-bom-from-excel-${tag}.tar"
+                        def commitSha = sh(script: 'git rev-parse HEAD', returnStdout: true).trim()
+                        echo "Manual commit SHA: ${commitSha}"
                         createGitHubRelease(
                             credentialId: 'github-token',
                             repository: 'murkkot/gost-bom-from-excel',
