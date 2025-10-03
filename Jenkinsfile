@@ -94,7 +94,7 @@ pipeline {
             steps {
                 script {
                     sh 'git fetch --tags'
-                    def tag = sh(script: 'git describe --tags HEAD || echo ""', returnStdout: true).trim()
+                    def tag = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
                     if (tag) {
                         echo "Building release for tag: ${tag}"
                         // release steps
