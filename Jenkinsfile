@@ -70,7 +70,6 @@ pipeline {
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
-                sh "rm -r release"
             }
         }
         stage('release') {
@@ -107,7 +106,8 @@ pipeline {
         stage("clean") {
             agent any
             steps {
-                echo 'cleaning files...'
+                echo 'cleaning files....'
+                sh "rm -r release"
                 sh  "rm gbfe_*.tar"
             }
         }
