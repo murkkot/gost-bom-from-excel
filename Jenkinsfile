@@ -84,6 +84,7 @@ pipeline {
                         createGitHubRelease(
                             credentialId: 'github-token',
                             repository: 'murkkot/gost-bom-from-excel',
+                            commitish: "${env.GIT_COMMIT}",
                             tag: "${tag}",
                             bodyText: 'Jenkins automatic release',
                             draft: true
