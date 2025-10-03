@@ -7,7 +7,7 @@ pipeline {
         stage("checkout scm"){
             agent any
             steps {
-                echo 'checking out scm...'
+                echo 'checking out scm....'
                 checkout scm
             }
         }
@@ -68,25 +68,9 @@ pipeline {
                     mkdir -p release/output
                     cp -r dist/main.exe templates release
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
-                    echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
                 sh "rm -r release"
-            }
-        }
-        stage("push version file") {
-            agent any
-            steps {
-                echo 'pushing version file...'
-                withCredentials([gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')]) {
-                    sh """
-                        git config user.name "jenkins-cli"
-                        git config user.email "jenkins@server"
-                        git add _version.py
-                        git commit -m "Update version file from Jenkins build ${BUILD_NUMBER}"
-                        git push origin HEAD:main
-                    """
-                }
             }
         }
         stage('release') {
@@ -101,6 +85,22 @@ pipeline {
                     } else {
                         echo "No tag found, skipping release"
                     }
+                }
+            }
+        }        
+        stage("push version file") {
+            agent any
+            steps {
+                echo 'pushing version file...'
+                withCredentials([gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')]) {
+                    sh """
+                        echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
+                        git config user.name "jenkins-cli"
+                        git config user.email "jenkins@server"
+                        git add _version.py
+                        git commit -m "Update version file from Jenkins build ${BUILD_NUMBER}"
+                        git push origin HEAD:main
+                    """
                 }
             }
         }
