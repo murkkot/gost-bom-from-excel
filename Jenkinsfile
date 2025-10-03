@@ -2,6 +2,7 @@ pipeline {
     agent none
     options {
         skipDefaultCheckout()
+        disableConcurrentBuilds()
     }
     stages {
         stage("checkout scm"){
@@ -132,6 +133,7 @@ pipeline {
                 echo 'cleaning files....'
                 sh "rm -r release"
                 sh  "rm *.tar"
+                cleanWs()
             }
         }
     }
