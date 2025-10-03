@@ -93,6 +93,11 @@ pipeline {
             agent any
             steps {
                 echo 'releasing...'
+                when {tag "*"}
+                steps {
+                    def tag = sh(script: 'git describe --tags --exact-match HEAD', returnStdout: true).trim()
+                    echo "echo "Current Git tag: ${tag}"
+                }
             }
 
         }
