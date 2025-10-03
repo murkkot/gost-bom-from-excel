@@ -76,23 +76,29 @@ pipeline {
             agent any
             steps {
                 script {
-                sh 'git fetch --tags'
-                def tag = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
-                if (tag) {
-                    echo "Building release for tag: ${tag}"
-                    sh "mv gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar gost-bom-from-excel-${tag}.tar"
-                    createGitHubRelease(
-                        tagName: tag,
-                        releaseName: "Release ${tag}",
-                        body: 'Automated release by Jenkins',
-                        draft: false,
-                        prerelease: false,
-                        uploadAssets: "gost-bom-from-excel-${tag}.tar",
-                        credentialsId: 'github-token'
-                    )
-                } else {
-                    echo "No tag found, skipping release"
-                }
+                    sh 'git fetch --tags'
+                    def tag = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
+                    if (tag) {
+                        echo "Building release for tag: ${tag}"
+                        sh "mv gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar gost-bom-from-excel-${tag}.tar"
+                        createGitHubRelease(
+                            credentialId: 'github-token',
+                            repository: 'murkkot/gost-bom-from-excel',
+                            tag: "${tag}",
+                            bodyText: 'Jenkins automatic release',
+                            draft: true
+                        )
+                        uploadGithubReleaseAsset(
+                            credentialId: 'github-token',
+                            repository: 'murkkot/gost-bom-from-excel',
+                            tagName: "${tag}",
+                            uploadAssets: [
+                                [filePath: "gost-bom-from-excel-${tag}.tar"]
+                            ]
+                        )
+                    } else {
+                        echo "No tag found, skipping release"
+                    }
                 }
             }
         }
