@@ -133,7 +133,6 @@ pipeline {
                 echo 'cleaning files....'
                 sh "rm -r release"
                 sh  "rm *.tar"
-                cleanWs()
             }
         }
     }
