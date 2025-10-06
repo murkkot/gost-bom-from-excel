@@ -130,7 +130,7 @@ pipeline {
         stage("clean") {
             agent any
             steps {
-                echo 'cleaning files...'
+                echo 'cleaning files....'
                 sh "rm -r release"
                 sh  "rm *.tar"
             }
