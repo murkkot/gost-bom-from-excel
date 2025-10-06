@@ -8,8 +8,14 @@ pipeline {
         stage("checkout scm"){
             agent any
             steps {
-                echo 'checking out scm....'
-                checkout scm
+                script {
+                    echo 'checking out scm....'
+                    def scmVars = checkout scm
+                    env.GIT_COMMIT = scmVars.GIT_COMMIT
+                    env.GIT_BRANCH = scmVars.GIT_BRANCH
+                    echo "Commit: ${env.GIT_COMMIT}"
+                    echo "Branch: ${env.GIT_BRANCH}"
+                }
             }
         }
         stage("read version number") {
