@@ -71,10 +71,10 @@ PART_LIST_CONFIG = {
     "sheetn_decimal_cell": "I38",
     "sheetn_page_num_cell": "P40",
     # Simplified post-processing step
-    "border_settings": {
-        "sheet1": "Q2:Q33",
-        "sheetn": "Q2:Q37"
-    }
+    # "border_settings": {
+    #     "sheet1": "Q2:Q33",
+    #     "sheetn": "Q2:Q37"
+    # }
 }
 
 # Find excel files in named folder
