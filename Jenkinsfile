@@ -30,7 +30,7 @@ pipeline {
                     env.GIT_TAG = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
                     echo "Tag found: ${env.GIT_TAG ?: 'NO TAG'}"
                     if (env.GIT_TAG) {
-                        env.VERSION = env.GIT_TAG.replaceFirst(/^v\.?/, '')
+                        env.VERSION = env.GIT_TAG.replaceFirst(/^v?/, '')
                     }
                     echo "VERSION is ${env.VERSION}"
                     echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
