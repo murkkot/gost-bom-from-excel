@@ -77,8 +77,8 @@ pipeline {
             agent any
             steps {
                 echo 'archiving...'
-                echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                 sh """
+                    echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                     mkdir -p release/input
                     mkdir -p release/output
                     cp -r dist/main.exe templates examples release
