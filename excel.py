@@ -92,7 +92,8 @@ def read_altium_excel_file(filepath):
         xls = pd.ExcelFile(filepath)
         if not {'Sheet1', 'Sheet2'}.issubset(xls.sheet_names):
             missing = {'Sheet1', 'Sheet2'} - set(xls.sheet_names)
-            print(f"Missing sheets: {', '.join(missing)}")
+            print(f"В excel файле {filepath} не найдены листы: {', '.join(missing)}")
+            input("Нажмите ENTER для выхода")
             sys.exit(1)
 
         # Read both sheets using the ExcelFile object
@@ -101,7 +102,8 @@ def read_altium_excel_file(filepath):
         return list1_df, list2_df
 
     except Exception as e:
-        print(f"Error reading file {filepath}: {e}")
+        print(f"Ошибка чтения файла {filepath}: {e}")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
 
 # Read groups excel file to dataset
@@ -110,7 +112,8 @@ def read_excel_file(filepath):
         # Read Excel file once and get sheet names
         xls = pd.ExcelFile(filepath)
         if not {'Sheet1'}.issubset(xls.sheet_names):
-            print("Missing Sheet1")
+            print(f"В excel файле {filepath} не найден лист Sheet1")
+            input("Нажмите ENTER для выхода")
             sys.exit(1)
 
         # Read sheet using the ExcelFile object
@@ -118,7 +121,8 @@ def read_excel_file(filepath):
         return df
 
     except Exception as e:
-        print(f"Error reading file {filepath}: {e}")
+        print(f"Ошибка чтения файла {filepath}: {e}")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
 
 # Write dataset to excel file
@@ -138,14 +142,16 @@ def write_to_excel(result_df, filename):
         return file_path
     
     except PermissionError:
-        print(f"ERROR: Permission denied - cannot write to {filename_with_ext}")
-        print("Please check:")
-        print("1. If the file is open in another program (close it)")
-        print("2. If you have write permissions in the output folder")
+        print(f"Ошибка записи в файл {filename_with_ext}")
+        print("Проверьте:")
+        print("1. Не открыт ли файл в другой программе (закройте её)")
+        print("2. Есть ли у вас права на запись в папку output")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
     
     except Exception as e:
-        print(f"Error writing Excel file: {str(e)}")
+        print(f"Ошибка записи в файл: {str(e)}")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
 
 # Create a standardized filename based on parameters from a DataFrame and a config dict
@@ -170,16 +176,22 @@ def copy_rename_template(templates_directory, output_directory, filename, config
     template_name = config["template_filename"]
     input_path = os.path.join(templates_directory, template_name)
     output_path = os.path.join(output_directory, filename)
-    print(f"Copying '{input_path}' to '{output_path}'")
+    print(f"Копирую '{input_path}' в '{output_path}'")
     try:
         shutil.copy2(input_path, output_path)
-        print("File copied and renamed successfully!")
+        print("Файл скопирован и переименован успешно")
     except FileNotFoundError:
-        print(f"Error: The source file '{input_path}' or directory not found.")
+        print(f"Ошибка: не найден файл '{input_path}'")
+        input("Нажмите ENTER для выхода")
+        sys.exit(1)
     except PermissionError:
-        print(f"Error: Permission denied to access '{input_path}' or write to '{output_path}'.")
+        print(f"Ошибка: не могу прочитать '{input_path}' или записать в '{output_path}'")
+        input("Нажмите ENTER для выхода")
+        sys.exit(1)
     except Exception as e:
-        print(f"An error occurred: {e}")
+        print(f"Ошибка: {e}")
+        input("Нажмите ENTER для выхода")
+        sys.exit(1)
 
 # Write to merged cell
 def write_to_merged_cell(ws, cell_ref, value):
@@ -216,7 +228,9 @@ def _get_param_value(df_params, key):
     try:
         return df_params.loc[df_params["Key"] == key, "Value"].values[0]
     except IndexError:
-        raise ValueError(f"Parameter key '{key}' not found in df_params.")
+        print(f"Параметр '{key}' не найден в df_params")
+        input("Нажмите ENTER для выхода...")
+        sys.exit(1)
 
 # Write a chunk of data to a sheet based on the layout config
 def _write_data_chunk(ws, df_data, start_row_idx, layout_config):
@@ -245,7 +259,7 @@ def write_document_to_template(df_params, df_data, filename, config):
         num_sheets = math.ceil((num_rows - config["sheet1_max_rows"]) / config["sheetn_max_rows"]) + 1
 
     output_path = Path('output') / filename
-    print(f"Processing file: {output_path} with {num_sheets} sheet(s).")
+    print(f"Обрабатываю файл: {output_path}, количество листов: {num_sheets}")
 
     try:
         wb = load_workbook(output_path)
@@ -253,7 +267,9 @@ def write_document_to_template(df_params, df_data, filename, config):
         # 2. Prepare multi-sheet template if needed
         if num_sheets > 1:
             if 'Sheet2' not in wb.sheetnames:
-                raise ValueError("Template must contain a 'Sheet2' for multi-page output.")
+                print(f"В файле {filename} отсутствует лист 'Sheet2'. Проверьте шаблон в папке templates")
+                input("Нажмите ENTER для выхода...")
+                sys.exit(1)
             if num_sheets > 2:
                 template_source = wb.copy_worksheet(wb['Sheet2'])
                 template_source.title = "template_temp"
@@ -307,15 +323,21 @@ def write_document_to_template(df_params, df_data, filename, config):
             del wb["template_temp"]
         if num_sheets == 1 and "Sheet2" in wb.sheetnames:
             del wb["Sheet2"]
-            print("Sheet 'Sheet2' deleted successfully.")
+            #print("Sheet 'Sheet2' deleted successfully.")
 
         # 7. Save Workbook
         wb.save(output_path)
-        print("Workbook saved successfully.")
+        print("Книга сохранена успешно")
 
     except FileNotFoundError:
-        print(f"Error: File or directory not found at {output_path}")
+        print(f"Ошибка: не найден файл {output_path}")
+        input("Нажмите ENTER для выхода...")
+        sys.exit(1)
     except PermissionError:
-        print(f"Error: Permission denied to write to {output_path}")
+        print(f"Ошибка: нет прав на запись в {output_path}")
+        input("Нажмите ENTER для выхода...")
+        sys.exit(1)
     except Exception as e:
-        print(f"An unexpected error occurred: {str(e)}")
+        print(f"Ошибка: {str(e)}")
+        input("Нажмите ENTER для выхода...")
+        sys.exit(1)

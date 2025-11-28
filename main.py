@@ -8,6 +8,7 @@ from _version import __version__
 if __name__ == "__main__":
     # Print version
     print(f"gost-bom-from-excel v.{__version__}")
+    print("------------------------------------")
 
     # Determine the base path, works for both development and PyInstaller
     if getattr(sys, 'frozen', False):
@@ -28,39 +29,41 @@ if __name__ == "__main__":
         # Find excel files in the directory
         found_files = find_excel_files(input_directory)
     else:
-        print(f"The directory '{input_directory}' does not exist.")
+        print(f"Папка '{input_directory}' не обнаружена")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
     
     if not found_files:  # Check if list is empty
-        print("No excel files found in the directory.")
+        print("Не найдены excel файлы в папке input")
+        input("Нажмите ENTER для выхода")
         sys.exit(1)
     else:  # Multiple files found
-        print("Found excel files in the input dir:")
+        print("Найдены следующие excel файлы:")
         for i, filename in enumerate(found_files, 1): # Print all filenames
             print(f"{i}. {filename}")
         # Prompt for file number
         while True:
             try:
-                choice = int(input("Enter altium data file number: "))
+                choice = int(input("Введите номер файла c данными из Altium: "))
                 if 1 <= choice <= len(found_files):
                     break
-                print(f"Please enter a number between 1 and {len(found_files)}")
+                print(f"Введите число между 1 и {len(found_files)}")
             except ValueError:
-                print("Please enter a valid number.")
+                print(f"Введите число между 1 и {len(found_files)}")
         filepath = os.path.join(input_directory, found_files[choice-1])
-        print(f"Reading altium data file: {found_files[choice-1]}")
+        print(f"Читаю файл c данными из Altium: {found_files[choice-1]}")
         # Read data and parameters from excel file
         df_data, df_params = read_altium_excel_file(filepath)
         while True:
             try:
-                choice = int(input("Enter bom docs file number: "))
+                choice = int(input("Введите номер файла с документацией для спецификации: "))
                 if 1 <= choice <= len(found_files):
                     break
-                print(f"Please enter a number between 1 and {len(found_files)}")
+                print(f"Введите число между 1 и {len(found_files)}")
             except ValueError:
-                print("Please enter a valid number.")
+                print(f"Введите число между 1 и {len(found_files)}")
         filepath = os.path.join(input_directory, found_files[choice-1])
-        print(f"Reading docs file: {found_files[choice-1]}")
+        print(f"Читаю файл с документацией для спецификации: {found_files[choice-1]}")
         df_docs = read_excel_file(filepath)
 
     # Read groups.xlsx to from templates directory dataframe
@@ -68,7 +71,7 @@ if __name__ == "__main__":
     if os.path.exists(filepath):
         df_groups = read_excel_file(filepath)
     else:
-        print(f"File does not exist: {filepath}")
+        print(f"Файл groups.xlsx не найден: {filepath}")
 
     # df_data - data from altium excel
     # df_params - parameters from altium excel
@@ -112,5 +115,5 @@ if __name__ == "__main__":
     write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
     # Write bom to template
     write_document_to_template(df_params, df_bom_templated, bom_file_name, BOM_CONFIG)
-    print("Program executed successfully")
-    input("Press any key to exit")
+    print("Программа завершилась успешно")
+    input("Нажмите ENTER для выхода")
