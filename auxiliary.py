@@ -1,4 +1,5 @@
 import re
+import sys
 
 # Process designator sequences according to GOST
 def process_designator_sequence(designators):
@@ -137,3 +138,11 @@ def reformat_names_list(string_list):
         i += 1
         
     return result
+
+# Check if df contains needed columns
+def check_dataframe(df, column_list, filename):
+    missing = set(column_list) - set(df.columns)
+    if missing:
+        print(f"В файле {filename} отсутствуют столбцы: {missing}")
+        input("Нажмите ENTER для выхода")
+        sys.exit(1)

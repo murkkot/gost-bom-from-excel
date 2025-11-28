@@ -25,6 +25,13 @@ pipeline {
                 script {
                     def versionOutput = sh(script: "cat _version.py | grep -Eo '[0-9]+\\.[0-9]+\\.[0-9]+'", returnStdout: true).trim()
                     env.VERSION = versionOutput
+                    // Check if tag is present for this commit
+                    sh 'git fetch --tags'
+                    env.GIT_TAG = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
+                    echo "Tag found: ${env.GIT_TAG ?: 'NO TAG'}"
+                    if (env.GIT_TAG) {
+                        env.VERSION = env.GIT_TAG.replaceFirst(/^v\.?/, '')
+                    }
                     echo "VERSION is ${env.VERSION}"
                     echo "BUILD_NUMBER is ${env.BUILD_NUMBER}"
                 }
@@ -70,10 +77,11 @@ pipeline {
             agent any
             steps {
                 echo 'archiving...'
+                echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                 sh """
                     mkdir -p release/input
                     mkdir -p release/output
-                    cp -r dist/main.exe templates release
+                    cp -r dist/main.exe templates examples release
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
@@ -83,26 +91,23 @@ pipeline {
             agent any
             steps {
                 script {
-                    sh 'git fetch --tags'
-                    def tag = sh(script: 'git describe --tags --exact-match HEAD || echo ""', returnStdout: true).trim()
-                    echo "Tag found: ${tag ?: 'NO TAG'}"
-                    if (tag) {
-                        echo "Building release for tag: ${tag}"
-                        sh "mv gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar gost-bom-from-excel-${tag}.tar"
+                    if (env.GIT_TAG) {
+                        echo "Building release for tag: ${env.GIT_TAG}"
+                        sh "mv gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar gost-bom-from-excel-${env.GIT_TAG}.tar"
                         createGitHubRelease(
                             credentialId: 'github-token',
                             repository: 'murkkot/gost-bom-from-excel',
                             commitish: "${env.GIT_COMMIT}",
-                            tag: "${tag}",
+                            tag: "${env.GIT_TAG}",
                             bodyText: 'Jenkins automatic release',
                             draft: false
                         )
                         uploadGithubReleaseAsset(
                             credentialId: 'github-token',
                             repository: 'murkkot/gost-bom-from-excel',
-                            tagName: "${tag}",
+                            tagName: "${env.GIT_TAG}",
                             uploadAssets: [
-                                [filePath: "gost-bom-from-excel-${tag}.tar"]
+                                [filePath: "gost-bom-from-excel-${env.GIT_TAG}.tar"]
                             ]
                         )
                     } else {
@@ -118,7 +123,6 @@ pipeline {
                 echo 'pushing version file...'
                 withCredentials([gitUsernamePassword(credentialsId: 'github-credentials', gitToolName: 'Default')]) {
                     sh """
-                        echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                         git config user.name "jenkins-cli"
                         git config user.email "jenkins@server"
                         git add _version.py

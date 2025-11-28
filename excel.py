@@ -228,7 +228,7 @@ def _get_param_value(df_params, key):
     try:
         return df_params.loc[df_params["Key"] == key, "Value"].values[0]
     except IndexError:
-        print(f"Параметр '{key}' не найден в df_params")
+        print(f"Параметр '{key}' не найден в df_params. Проверьте лист Sheet2 в файле с данными из Altium")
         input("Нажмите ENTER для выхода...")
         sys.exit(1)
 

@@ -8,7 +8,7 @@ from _version import __version__
 if __name__ == "__main__":
     # Print version
     print(f"gost-bom-from-excel v.{__version__}")
-    print("------------------------------------")
+    print("--------------------------------------")
 
     # Determine the base path, works for both development and PyInstaller
     if getattr(sys, 'frozen', False):
@@ -50,10 +50,10 @@ if __name__ == "__main__":
                 print(f"Введите число между 1 и {len(found_files)}")
             except ValueError:
                 print(f"Введите число между 1 и {len(found_files)}")
-        filepath = os.path.join(input_directory, found_files[choice-1])
+        data_filepath = os.path.join(input_directory, found_files[choice-1])
         print(f"Читаю файл c данными из Altium: {found_files[choice-1]}")
         # Read data and parameters from excel file
-        df_data, df_params = read_altium_excel_file(filepath)
+        df_data, df_params = read_altium_excel_file(data_filepath)
         while True:
             try:
                 choice = int(input("Введите номер файла с документацией для спецификации: "))
@@ -62,9 +62,9 @@ if __name__ == "__main__":
                 print(f"Введите число между 1 и {len(found_files)}")
             except ValueError:
                 print(f"Введите число между 1 и {len(found_files)}")
-        filepath = os.path.join(input_directory, found_files[choice-1])
+        docs_filepath = os.path.join(input_directory, found_files[choice-1])
         print(f"Читаю файл с документацией для спецификации: {found_files[choice-1]}")
-        df_docs = read_excel_file(filepath)
+        df_docs = read_excel_file(docs_filepath)
 
     # Read groups.xlsx to from templates directory dataframe
     filepath = os.path.join(templates_directory, "groups.xlsx")
@@ -81,6 +81,12 @@ if __name__ == "__main__":
     # df_part_list_templated - modified part list for template
     # df_bom - sorted bom
     # df_bom_templated - modified bom for template
+
+    # Check df_data
+    columns_list = ['Designator', 'Name', 'Quantity', 'Decimal Number']
+    check_dataframe(df_data, columns_list, data_filepath)
+    columns_list = ['Format', 'Zone', 'Position', 'Decimal Number', 'Name', 'Quantity', 'Designator']
+    check_dataframe(df_docs, columns_list, docs_filepath)
         
     # Sort part list
     df_part_list = combine_part_list_consecutive_components(df_data)
@@ -115,5 +121,6 @@ if __name__ == "__main__":
     write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)
     # Write bom to template
     write_document_to_template(df_params, df_bom_templated, bom_file_name, BOM_CONFIG)
+    print("--------------------------------------")
     print("Программа завершилась успешно")
     input("Нажмите ENTER для выхода")
