@@ -2,6 +2,15 @@ import re
 import pandas as pd
 from auxiliary import *
 
+# Remove lines with empty designator fileds
+def clean_part_list_non_des_fields(df):
+    df_result = df
+    # Treat NaN as empty string
+    df_result['Designator'] = df_result['Designator'].fillna('')
+    # Keep only rows where Designator is not empty
+    df_result = df_result[df_result['Designator'] != '']
+    return df_result
+
 # Sort dataset for parts list (PE3)
 def combine_part_list_consecutive_components(df):
     if df.empty:

@@ -87,9 +87,12 @@ if __name__ == "__main__":
     check_dataframe(df_data, columns_list, data_filepath)
     columns_list = ['Format', 'Zone', 'Position', 'Decimal Number', 'Name', 'Quantity', 'Designator']
     check_dataframe(df_docs, columns_list, docs_filepath)
-        
+
+    # Clean part list line with empty Designator field
+    df_clean_data = clean_part_list_non_des_fields(df_data)
+    #print(df_clean_data)    
     # Sort part list
-    df_part_list = combine_part_list_consecutive_components(df_data)
+    df_part_list = combine_part_list_consecutive_components(df_clean_data)
     # Modify part list for template
     df_part_list_templated = modify_part_list_fields(df_part_list)
 

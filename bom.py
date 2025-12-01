@@ -13,8 +13,9 @@ def combine_bom_components(df):
     if df.empty:
         return pd.DataFrame(columns=['Decimal Number', 'Name', 'Quantity', 'Designator'])
     
+    # Treat NA cells as ""
+    df['Designator'] = df['Designator'].fillna("")
     # Combine components with the same name by summing quantities and concatenating designators with comma separator.
-
     # Group by Name and aggregate
     result = df.groupby('Name').agg({
         'Designator': lambda x: ','.join(sorted(x, key=natural_sort_key)),  # sorted for consistent order
@@ -74,14 +75,29 @@ def sort_bom(df_data, df_groups):
     return df_result
 
 # Extract the first two letters from Designator to identify groups
+# def extract_group(designator):
+#     if pd.isna(designator):
+#         return None
+#     # Get the first letters (like 'VD', 'XP', 'L')
+#     designators = designator.split(',')
+#     first_designator = designators[0].strip()
+#     result = re.match(r"^[A-Za-z]+", first_designator).group()
+#     return result
+
 def extract_group(designator):
-    if pd.isna(designator):
+    # Treat NaN / None / empty string as no group
+    if not designator or pd.isna(designator):
         return None
-    # Get the first letters (like 'VD', 'XP', 'L')
-    designators = designator.split(',')
-    first_designator = designators[0].strip()
-    result = re.match(r"^[A-Za-z]+", first_designator).group()
-    return result
+
+    # Take first designator before comma
+    first_designator = str(designator).split(',')[0].strip()
+
+    # Try to match leading letters
+    m = re.match(r"^[A-Za-z]+", first_designator)
+    if m is None:
+        return None      # or "" if you prefer empty string
+
+    return m.group()
 
 # Concatenate bom and docs
 def concat_bom_and_docs(df_bom, df_docs):
