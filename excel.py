@@ -1,6 +1,7 @@
 import os
 import sys
 import math
+import time
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import range_boundaries
@@ -80,7 +81,11 @@ PART_LIST_CONFIG = {
 # Find excel files in named folder
 def find_excel_files(input_dir):
     excel_files = []
+    count=1
     for filename in os.listdir(input_dir):
+        print(f"Читаю файлы {count}", end="\r", flush=True)
+        time.sleep(0.1)
+        count += 1
         if filename.lower().endswith(('.xls', '.xlsx')):
             excel_files.append(filename)
     return excel_files
@@ -278,6 +283,8 @@ def write_document_to_template(df_params, df_data, filename, config):
         ws = wb['Sheet1']
 
         # 3. Write parameters to Sheet1 title block
+        print(f"Записываю данные на лист 1" + " " * 20, end="\r", flush=True)
+        time.sleep(0.1)
         for key, cell in config["title_block_map"].items():
             value = _get_param_value(df_params, key)
             if isinstance(cell, list):
@@ -303,6 +310,8 @@ def write_document_to_template(df_params, df_data, filename, config):
         # --- Process Subsequent Sheets (SheetN) ---
         if num_sheets > 1:
             for i in range(2, num_sheets + 1):
+                print(f"Записываю данные на лист {i}" + " " * 20, end="\r", flush=True)
+                time.sleep(0.1)
                 target_sheet_name = f"Sheet{i}"
                 if i == 2:
                     ws_n = wb[target_sheet_name]
@@ -326,6 +335,8 @@ def write_document_to_template(df_params, df_data, filename, config):
             #print("Sheet 'Sheet2' deleted successfully.")
 
         # 7. Save Workbook
+        print(f"Сохраняю книгу" + " " * 20, end="\r", flush=True)
+        time.sleep(0.1)
         wb.save(output_path)
         print("Книга сохранена успешно")
 
