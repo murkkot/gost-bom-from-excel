@@ -1,5 +1,4 @@
-import re
-import sys
+import re, os
 
 # Process designator sequences according to GOST
 def process_designator_sequence(designators):
@@ -49,7 +48,7 @@ def modify_designator_field_length(field, length):
     result = []
     current_segment = ""
     fields = field.split(',')
-    
+   
     for i, part in enumerate(fields):
         # Check if adding this part would exceed length
         if current_segment:
@@ -143,6 +142,35 @@ def reformat_names_list(string_list):
 def check_dataframe(df, column_list, filename):
     missing = set(column_list) - set(df.columns)
     if missing:
-        print(f"В файле {filename} отсутствуют столбцы: {missing}")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        message = f"ОШИБКА! В файле {filename} отсутствуют столбцы: {missing}"
+    else:
+        message = ""
+    return message
+
+# Get input file from user input
+def get_input_file(files):
+    os.system("cls")
+    print("Найдены следующие excel файлы:")
+    for i, filename in enumerate(files, 1): # Print all filenames
+        print(f"{i}. {filename}")
+    # Prompt for file number
+    while True:
+        try:
+            choice = int(input("Введите номер файла: "))
+            if 1 <= choice <= len(files):
+                break
+            print(f"Введите число между 1 и {len(files)}")
+        except ValueError:
+            print(f"Введите число между 1 и {len(files)}")
+    return choice
+
+# Read user input
+def read_user_input(message, min, max):
+    while True:
+        try:
+            choice = int(input(message))
+            if min <= choice <= max:
+                return choice
+            print(f"Введите число между {min} и {max}")
+        except ValueError:
+            print(f"Введите число между {min} и {max}")

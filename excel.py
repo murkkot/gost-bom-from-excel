@@ -92,43 +92,43 @@ def find_excel_files(input_dir):
 
 # Read altium excel file to dataset
 def read_altium_excel_file(filepath):
+    list1_df = pd.DataFrame()
+    list2_df = pd.DataFrame()
+    error = ""
     try:
         # Read Excel file once and get sheet names
-        xls = pd.ExcelFile(filepath)
-        if not {'Sheet1', 'Sheet2'}.issubset(xls.sheet_names):
-            missing = {'Sheet1', 'Sheet2'} - set(xls.sheet_names)
-            print(f"В excel файле {filepath} не найдены листы: {', '.join(missing)}")
-            input("Нажмите ENTER для выхода")
-            sys.exit(1)
+        with pd.ExcelFile(filepath) as xls:
+            if not {'Sheet1', 'Sheet2'}.issubset(xls.sheet_names):
+                missing = {'Sheet1', 'Sheet2'} - set(xls.sheet_names)
+                error = f"В excel файле {filepath} не найдены листы: {', '.join(missing)}"
+                return list1_df, list2_df, error
 
-        # Read both sheets using the ExcelFile object
-        list1_df = pd.read_excel(xls, sheet_name='Sheet1')
-        list2_df = pd.read_excel(xls, sheet_name='Sheet2')
-        return list1_df, list2_df
+            # Read both sheets using the ExcelFile object
+            list1_df = pd.read_excel(xls, sheet_name='Sheet1')
+            list2_df = pd.read_excel(xls, sheet_name='Sheet2')
+            return list1_df, list2_df, error
 
     except Exception as e:
-        print(f"Ошибка чтения файла {filepath}: {e}")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        error = f"Ошибка чтения файла {filepath}: {e}"
+        return list1_df, list2_df, error
 
 # Read groups excel file to dataset
 def read_excel_file(filepath):
+    df = pd.DataFrame()
+    error = ""
     try:
-        # Read Excel file once and get sheet names
-        xls = pd.ExcelFile(filepath)
-        if not {'Sheet1'}.issubset(xls.sheet_names):
-            print(f"В excel файле {filepath} не найден лист Sheet1")
-            input("Нажмите ENTER для выхода")
-            sys.exit(1)
+        with pd.ExcelFile(filepath) as xls:
+            if 'Sheet1' not in xls.sheet_names:
+                error = f"ОШИБКА! В excel файле {filepath} не найден лист Sheet1"
+                return df, error
 
-        # Read sheet using the ExcelFile object
-        df = pd.read_excel(xls, sheet_name='Sheet1')
-        return df
-
+            df = pd.read_excel(xls, sheet_name='Sheet1')
+            return df, error
+        
     except Exception as e:
-        print(f"Ошибка чтения файла {filepath}: {e}")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        error = f"Ошибка чтения файла {filepath}: {e}"
+        return df, error
+
 
 # Write dataset to excel file
 def write_to_excel(result_df, filename):
@@ -181,22 +181,21 @@ def copy_rename_template(templates_directory, output_directory, filename, config
     template_name = config["template_filename"]
     input_path = os.path.join(templates_directory, template_name)
     output_path = os.path.join(output_directory, filename)
-    print(f"Копирую '{input_path}' в '{output_path}'")
+    message = ""
+    #print(f"Копирую '{input_path}' в '{output_path}'")
     try:
         shutil.copy2(input_path, output_path)
-        print("Файл скопирован и переименован успешно")
+        return message
     except FileNotFoundError:
-        print(f"Ошибка: не найден файл '{input_path}'")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        message = f"Ошибка: не найден файл '{input_path}'"
+        return message
     except PermissionError:
-        print(f"Ошибка: не могу прочитать '{input_path}' или записать в '{output_path}'")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        message = f"Ошибка: не могу прочитать '{input_path}' или записать в '{output_path}'"
+        return message
     except Exception as e:
         print(f"Ошибка: {e}")
-        input("Нажмите ENTER для выхода")
-        sys.exit(1)
+        message = f"Ошибка: {e}"
+        return message
 
 # Write to merged cell
 def write_to_merged_cell(ws, cell_ref, value):
@@ -256,6 +255,7 @@ def _write_data_chunk(ws, df_data, start_row_idx, layout_config):
 
 # Write part list or bom to template according to config dictionary
 def write_document_to_template(df_params, df_data, filename, config):
+    message = ""
     # 1. Calculate number of sheets from config
     num_rows = df_data.shape[0]
     if num_rows <= config["sheet1_max_rows"]:
@@ -272,9 +272,8 @@ def write_document_to_template(df_params, df_data, filename, config):
         # 2. Prepare multi-sheet template if needed
         if num_sheets > 1:
             if 'Sheet2' not in wb.sheetnames:
-                print(f"В файле {filename} отсутствует лист 'Sheet2'. Проверьте шаблон в папке templates")
-                input("Нажмите ENTER для выхода...")
-                sys.exit(1)
+                message = f"В файле {filename} отсутствует лист 'Sheet2'. Проверьте шаблон в папке templates"
+                return message
             if num_sheets > 2:
                 template_source = wb.copy_worksheet(wb['Sheet2'])
                 template_source.title = "template_temp"
@@ -332,23 +331,19 @@ def write_document_to_template(df_params, df_data, filename, config):
             del wb["template_temp"]
         if num_sheets == 1 and "Sheet2" in wb.sheetnames:
             del wb["Sheet2"]
-            #print("Sheet 'Sheet2' deleted successfully.")
 
         # 7. Save Workbook
         print(f"Сохраняю книгу" + " " * 20, end="\r", flush=True)
         time.sleep(0.1)
         wb.save(output_path)
-        print("Книга сохранена успешно")
+        return message
 
     except FileNotFoundError:
-        print(f"Ошибка: не найден файл {output_path}")
-        input("Нажмите ENTER для выхода...")
-        sys.exit(1)
+        message = f"Ошибка: не найден файл {output_path}"
+        return message
     except PermissionError:
-        print(f"Ошибка: нет прав на запись в {output_path}")
-        input("Нажмите ENTER для выхода...")
-        sys.exit(1)
+        message = f"Ошибка: нет прав на запись в {output_path}"
+        return message
     except Exception as e:
-        print(f"Ошибка: {str(e)}")
-        input("Нажмите ENTER для выхода...")
-        sys.exit(1)
+        message = f"Ошибка: {str(e)}"
+        return message

@@ -4,6 +4,9 @@ import re
 from auxiliary import *
 from typing import List
 
+bom_designator_field_length = 11
+bom_name_field_length = 35
+
 def natural_sort_key(s: str) -> List:
 
     # Create a sort key for natural sorting. 
@@ -74,16 +77,6 @@ def sort_bom(df_data, df_groups):
 
     return df_result
 
-# Extract the first two letters from Designator to identify groups
-# def extract_group(designator):
-#     if pd.isna(designator):
-#         return None
-#     # Get the first letters (like 'VD', 'XP', 'L')
-#     designators = designator.split(',')
-#     first_designator = designators[0].strip()
-#     result = re.match(r"^[A-Za-z]+", first_designator).group()
-#     return result
-
 def extract_group(designator):
     # Treat NaN / None / empty string as no group
     if not designator or pd.isna(designator):
@@ -101,15 +94,25 @@ def extract_group(designator):
 
 # Concatenate bom and docs
 def concat_bom_and_docs(df_bom, df_docs):
+    ALL_COLUMNS = ['Format', 'Zone', 'Position', 'Decimal Number', 'Name', 'Quantity', 'Designator']
+    # if df_docs.empty:
+    #     df_docs = pd.DataFrame(columns=ALL_COLUMNS)
+    # Normalize df_bom
+    for col in ALL_COLUMNS:
+        if col not in df_bom.columns:
+            df_bom[col] = ""
+    # Reorder columns in df_bom
+    df_bom = df_bom[ALL_COLUMNS]
+    if df_docs.empty:
+        df_result = df_bom
+    else:
+        df_result = pd.concat([df_docs, df_bom])
     df_result = pd.concat([df_docs, df_bom])
     return df_result
 
 # Modify dataframe's field with according lenght to fit the template
 def modify_bom_fields(dataset):
-
-    DEGIGNATOR_FIELD_LENGTH = 11
-    NAME_FIELD_LENGTH = 35
-
+    global bom_designator_field_length, bom_name_field_length
     new_data = []
     
     for _, row in dataset.iterrows():
@@ -118,13 +121,13 @@ def modify_bom_fields(dataset):
 
         # If designator is not a string, treat it as an empty one
         if isinstance(designator, str) and pd.notna(designator):
-            designator_parts = modify_designator_field_length(designator, DEGIGNATOR_FIELD_LENGTH)
+            designator_parts = modify_designator_field_length(designator, bom_designator_field_length)
         else:
             designator_parts = ['']
 
         # If name is not a string, treat it as an empty one
         if isinstance(name, str) and pd.notna(name):
-            name_parts = modify_name_field_length(name, NAME_FIELD_LENGTH)
+            name_parts = modify_name_field_length(name, bom_name_field_length)
         else:
             name_parts = ['']
 
