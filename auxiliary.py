@@ -1,5 +1,4 @@
-import re, os
-import win32com.client
+import re, os, sys
 
 # Process designator sequences according to GOST
 def process_designator_sequence(designators):
@@ -185,8 +184,13 @@ def export_pdf(excel_path, pdf_path):
     elif not os.access(os.path.dirname(pdf_path), os.W_OK):
         message = f"Нет прав на запись в папку {pdf_path}"
         return message
+    # Check for windows platform
+    if sys.platform != "win32":
+        message = f"PDF export skipped on {sys.platform}"
+        return message
     
     try:
+        import win32com.client
         excel = win32com.client.Dispatch("Excel.Application")
         excel.Visible = False
 
