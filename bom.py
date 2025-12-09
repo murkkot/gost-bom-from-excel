@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 import re
-from auxiliary import *
+from auxiliary import process_designator_sequence, modify_designator_field_length, modify_name_field_length
 from typing import List
 
 def natural_sort_key(s: str) -> List:

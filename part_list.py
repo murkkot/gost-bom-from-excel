@@ -1,6 +1,6 @@
 import re
 import pandas as pd
-from auxiliary import *
+from auxiliary import process_designator_sequence, modify_designator_field_length, modify_name_field_length
 
 # Remove lines with empty designator fileds
 def clean_part_list_non_des_fields(df):
