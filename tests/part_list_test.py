@@ -105,6 +105,6 @@ def test_modify_part_list_fields():
     input_df = pd.DataFrame(input_data)
     expected_df = pd.DataFrame(expected_data)
 
-    actual_df = modify_part_list_fields(input_df)
+    actual_df = modify_part_list_fields(input_df, 15, 50)
     
     pdt.assert_frame_equal(actual_df.reset_index(drop=True), expected_df.reset_index(drop=True))
