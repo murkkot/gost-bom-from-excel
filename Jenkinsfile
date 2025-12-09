@@ -66,7 +66,7 @@ pipeline {
                 echo "${WORKSPACE}"
                 sh """
                     docker run --rm \
-                    -v "/mnt/hdd/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src" \
+                    -v "/mnt/ssdsata/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src" \
                     -w /src \
                     cdrx/pyinstaller-windows:python3 \
                     "pyinstaller --clean --onefile main.py"
