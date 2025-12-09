@@ -1,10 +1,8 @@
 import os, sys, time
 from typing import Dict, Any, Tuple
 import pandas as pd
-from bom import bom_designator_field_length, bom_name_field_length, \
-combine_bom_components, sort_bom, concat_bom_and_docs, modify_bom_fields
-from part_list import part_list_designator_field_lenght, part_list_name_field_lenght, \
-clean_part_list_non_des_fields, combine_part_list_consecutive_components, modify_part_list_fields
+from bom import combine_bom_components, sort_bom, concat_bom_and_docs, modify_bom_fields
+from part_list import clean_part_list_non_des_fields, combine_part_list_consecutive_components, modify_part_list_fields
 from excel import *
 from auxiliary import get_input_file, check_dataframe, read_user_input
 Menu = Dict[str, Any]
@@ -26,6 +24,10 @@ data_filepath = ""
 docs_filepath = ""
 part_list_file_name = ""
 bom_file_name = ""
+bom_designator_field_length = 11
+bom_name_field_length = 35
+part_list_designator_field_lenght = 15
+part_list_name_field_lenght = 50
 
 # ====================== Base functions ======================
 def print_menu(menu, message):
@@ -161,13 +163,14 @@ def menu_load_docs() -> Tuple[Menu, str]:
 
 # ====================== Gen menu functions ======================
 def menu_gen_excel_all() -> Tuple[Menu, str]:
-    global df_data, df_docs, df_groups, df_params, part_list_file_name, bom_file_name, PART_LIST_CONFIG, BOM_CONFIG
+    global df_data, df_docs, df_groups, df_params, part_list_file_name, bom_file_name, PART_LIST_CONFIG, BOM_CONFIG, \
+         part_list_designator_field_lenght, part_list_name_field_lenght, bom_designator_field_length, bom_name_field_length
     # Clean part list line with empty Designator field
     df_clean_data = clean_part_list_non_des_fields(df_data)  
     # Sort part list
     df_part_list = combine_part_list_consecutive_components(df_clean_data)
     # Modify part list for template
-    df_part_list_templated = modify_part_list_fields(df_part_list)
+    df_part_list_templated = modify_part_list_fields(df_part_list, part_list_designator_field_lenght, part_list_name_field_lenght)
 
     # Combine bom components
     df_bom = combine_bom_components(df_data)
@@ -176,7 +179,7 @@ def menu_gen_excel_all() -> Tuple[Menu, str]:
     # Concat docs and bom
     df_bom = concat_bom_and_docs(df_bom, df_docs)
     # Modify bom for template
-    df_bom_templated = modify_bom_fields(df_bom)
+    df_bom_templated = modify_bom_fields(df_bom, bom_designator_field_length, bom_name_field_length)
 
     # Write part list to template
     message = write_document_to_template(df_params, df_part_list_templated, part_list_file_name, PART_LIST_CONFIG)

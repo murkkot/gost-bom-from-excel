@@ -4,9 +4,6 @@ import re
 from auxiliary import *
 from typing import List
 
-bom_designator_field_length = 11
-bom_name_field_length = 35
-
 def natural_sort_key(s: str) -> List:
 
     # Create a sort key for natural sorting. 
@@ -111,8 +108,7 @@ def concat_bom_and_docs(df_bom, df_docs):
     return df_result
 
 # Modify dataframe's field with according lenght to fit the template
-def modify_bom_fields(dataset):
-    global bom_designator_field_length, bom_name_field_length
+def modify_bom_fields(dataset, bom_designator_field_length, bom_name_field_length):
     new_data = []
     
     for _, row in dataset.iterrows():

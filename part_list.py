@@ -2,9 +2,6 @@ import re
 import pandas as pd
 from auxiliary import *
 
-part_list_designator_field_lenght = 15
-part_list_name_field_lenght = 50
-
 # Remove lines with empty designator fileds
 def clean_part_list_non_des_fields(df):
     df_result = df
@@ -49,8 +46,7 @@ def combine_part_list_consecutive_components(df):
     return pd.DataFrame(combined_data)
 
 # Modify dataframe's field with according lenght to fit the template
-def modify_part_list_fields(dataset):
-    global part_list_designator_field_lenght, part_list_name_field_lenght
+def modify_part_list_fields(dataset, part_list_designator_field_lenght, part_list_name_field_lenght):
     new_data = []
     
     for _, row in dataset.iterrows():
