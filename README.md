@@ -1,16 +1,16 @@
-# Программа преобразования Altium Designer bom в перечень элементов и спецификацию по ГОСТ
+# Программа преобразования Altium Designer BOM в перечень элементов и спецификацию по ГОСТ
 
 ![Title image](img/img.jpg)
 
 ## Использование
-1. [Скачайте](https://github.com/murkkot/gost-bom-from-excel/releases) архив с исполняемым файлом. Распайкуте его.
+1. [Скачайте](https://github.com/murkkot/gost-bom-from-excel/releases) архив с исполняемым файлом. Распакуйте его.
 2. Подготовьте входящую спецификацию:
    - Создайте файл OutputJob в Altium Designer.
    - В файле OutputJob нажмите *Add New Report Output -> Bill of Material*.
    - Нажмите на появившуюся строку правой кнопкой мыши и выберите Configure.
    - В поле Properties на вкладке General в строке Template укажите файл шаблона [templates/altium_template.xlsx](templates/altium_template.xlsx).
-   - В поле Properties на вкладкe Columns выберите столбцы **Designator, Name, Quantity, Decimal Number**. *Не сортируйте ни один столбец!* Нажмите Ok.
-   - Создайте и настройте Output Container. Сгенерируйте файл входящей спецификации. Положите файл в папку *input* внутри папки с программой. Пример входящей спецификаци можно посмотреть в [examples/bom_from_altium.xlsx](examples/bom_from_altium.xlsx).
+   - В поле Properties на вкладке Columns выберите столбцы **Designator, Name, Quantity, Decimal Number**. *Не сортируйте ни один столбец!* Нажмите OK.
+   - Создайте и настройте Output Container. Сгенерируйте файл входящей спецификации. Положите файл в папку *input* внутри папки с программой. Пример входящей спецификации можно посмотреть в [examples/bom_from_altium.xlsx](examples/bom_from_altium.xlsx).
 3. Подготовьте файл документации для спецификации. Пример можно посмотреть в [examples/docs_for_sp.xlsx](examples/docs_for_sp.xlsx). Возьмите пример за основу для создания вашего файла. Положите файл в папку *input* внутри папки с программой.
 4. Запустите *main.exe* и следуйте инструкциям программы.
 5. Исходящие файлы программа сохраняет в папку *output*.
@@ -27,7 +27,7 @@ git clone https://github.com/murkkot/gost-bom-from-excel.git
 ```
 cd "gost-bom-from-excel"
 ```
-4. Проверьте, установлен ли python. В коммандной строке выполните
+4. Проверьте, установлен ли python. В командной строке выполните
 ```
 python --version
 ```
