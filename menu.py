@@ -1,10 +1,10 @@
-import os, sys, time
+import os, sys, time, re
 from typing import Dict, Any, Tuple
 import pandas as pd
 from bom import combine_bom_components, sort_bom, concat_bom_and_docs, modify_bom_fields
 from part_list import clean_part_list_non_des_fields, combine_part_list_consecutive_components, modify_part_list_fields
 from excel import *
-from auxiliary import get_input_file, check_dataframe, read_user_input
+from auxiliary import get_input_file, check_dataframe, read_user_input, export_pdf
 Menu = Dict[str, Any]
 
 # ====================== Global variables ======================
@@ -193,7 +193,34 @@ def menu_gen_excel_all() -> Tuple[Menu, str]:
     return gen_menu, message
 
 def menu_gen_pdf_all():
-    message = "Очень хочется, но еще не готово =)"
+    global part_list_file_name, bom_file_name, output_directory
+    message = ""
+    
+    match = re.match(r'^(.+?)\.xlsx$', part_list_file_name)
+    part_list_pdf_name = match.group(1) + ".pdf"
+    match = re.match(r'^(.+?)\.xlsx$', bom_file_name)
+    bom_pdf_name = match.group(1) + ".pdf"
+    
+    part_list_excel_path = os.path.join(output_directory, part_list_file_name)
+    bom_excel_path = os.path.join(output_directory, bom_file_name)
+    part_list_pdf_path = os.path.join(output_directory, part_list_pdf_name)
+    bom_pdf_path = os.path.join(output_directory, bom_pdf_name)
+
+    # Check if excel files have already been generated
+    if not os.path.exists(part_list_excel_path) or not os.path.exists(bom_excel_path):
+        message = f"Ошибка! Не найден файл {part_list_excel_path} или {bom_excel_path}"
+        return gen_menu, message
+
+    # Print part list to pdf
+    message = export_pdf(part_list_excel_path, part_list_pdf_path)
+    if message:
+        return gen_menu, message
+    # Print bom to pdf
+    message = export_pdf(bom_excel_path, bom_pdf_path)
+    if message:
+        return gen_menu, message
+    
+    message = "PDF сохранены успешно"
     return gen_menu, message
 
 # ====================== Set menu functions ======================
@@ -266,6 +293,8 @@ gen_menu = {
         "----------------------------------------------------\n"
         "Сгенерированные файлы находятся в папке output.\n"
         "Удалять существующие файлы не нужно, они перепишутся автоматически.\n"
+        "Генерация PDF не работает, если у вас не установлен MS Excel.\n"
+        "Если PDF пустые, сгенерируйте сначала excel файлы.\n"
         "----------------------------------------------------\n"
     )
 }

@@ -2,6 +2,7 @@ input/*.xls
 input/*.xlsx
 output/*.xls
 output/*.xlsx
+output/*.pdf
 __pycache__/
 venv/
 release/

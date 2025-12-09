@@ -1,4 +1,5 @@
 import re, os
+import win32com.client
 
 # Process designator sequences according to GOST
 def process_designator_sequence(designators):
@@ -174,3 +175,37 @@ def read_user_input(message, min, max):
             print(f"Введите число между {min} и {max}")
         except ValueError:
             print(f"Введите число между {min} и {max}")
+
+def export_pdf(excel_path, pdf_path):
+    message = ""
+    # Check target path permissions
+    if os.path.exists(pdf_path) and not os.access(pdf_path, os.W_OK):
+        message = f"Нет прав на перезапись {pdf_path}"
+        return message
+    elif not os.access(os.path.dirname(pdf_path), os.W_OK):
+        message = f"Нет прав на запись в папку {pdf_path}"
+        return message
+    
+    try:
+        excel = win32com.client.Dispatch("Excel.Application")
+        excel.Visible = False
+
+        workbook = excel.Workbooks.Open(excel_path)
+
+        # Export all printable sheets
+        print(f"Записываю {pdf_path}")
+        workbook.ExportAsFixedFormat(
+            Type=0,              # 0 = PDF
+            Filename=pdf_path,
+            Quality=0,           # 0 = standard, 1 = minimum
+            IncludeDocProperties=True,
+            IgnorePrintAreas=False,
+        )
+
+        workbook.Close(SaveChanges=False)
+        excel.Quit()
+
+        return message
+    except Exception as e:
+        message = f"Ошибка экспорта: {e}"
+        return message
