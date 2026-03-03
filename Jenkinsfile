@@ -65,15 +65,7 @@ pipeline {
                 echo 'building...'
                 echo "${WORKSPACE}"
                 sh """
-<<<<<<< Updated upstream
                     docker run --rm -v /home/nas/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src kicsikrumpli/wine-pyinstaller --clean --onefile main.py
-=======
-                    docker run --rm \
-                    -v "/home/nas/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src" \
-                    -w /src \
-                    marius9669/pyinstaller-windows:latest \
-                    pyinstaller --clean --onefile main.py
->>>>>>> Stashed changes
                 """
             }
         }
@@ -85,7 +77,7 @@ pipeline {
                     echo "__version__ = \\\"${env.VERSION} build ${env.BUILD_NUMBER}\\\"" > _version.py
                     mkdir -p release/input
                     mkdir -p release/output
-                    cp -r dist/main.exe templates examples release
+                    cp -r dist/main.exe templates examples release README.md
                     tar -cvf gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar -C release .
                 """
                 archiveArtifacts artifacts: "gbfe_${env.VERSION}_build_${env.BUILD_NUMBER}.tar", fingerprint: true
