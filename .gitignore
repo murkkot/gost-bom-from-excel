@@ -8,6 +8,7 @@ venv/
 release/
 *.tar
 *.log
+*.spec
 qq
 
 # pytest
@@ -17,4 +18,3 @@ test-reports/
 # pyinstaller
 build/
 dist/
-main.spec

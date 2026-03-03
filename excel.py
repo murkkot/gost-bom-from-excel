@@ -1,7 +1,4 @@
-import os
-import sys
-import math
-import time
+import os, sys, math, time, logging
 import pandas as pd
 from openpyxl import load_workbook
 from openpyxl.utils import range_boundaries
@@ -9,6 +6,9 @@ from openpyxl.styles import Border, Side
 from pathlib import Path
 import shutil
 from itertools import chain
+from auxiliary import _is_filename
+
+logger = logging.getLogger(__name__)
 
 # --- Configuration for Bill of Materials (BOM) ---
 BOM_CONFIG = {
@@ -106,6 +106,11 @@ def read_altium_excel_file(filepath):
             # Read both sheets using the ExcelFile object
             list1_df = pd.read_excel(xls, sheet_name='Sheet1')
             list2_df = pd.read_excel(xls, sheet_name='Sheet2')
+
+            logger.debug(f"df_data:\n{list1_df}")
+            logger.debug(f"df_params:\n{list2_df}")
+            logger.debug(f"error: {error}")
+
             return list1_df, list2_df, error
 
     except Exception as e:
@@ -161,6 +166,7 @@ def write_to_excel(result_df, filename):
 
 # Create a standardized filename based on parameters from a DataFrame and a config dict
 def create_document_filename(df_params, config):
+    logger.debug("FUNCTION create_document_filename")
     # Get the common values from the DataFrame
     decimal_num = _get_param_value(df_params, "Децимальный номер")
     name = _get_param_value(df_params, "Наименование 2")
@@ -173,16 +179,29 @@ def create_document_filename(df_params, config):
 
     # Assemble the filename
     filename = f"{decimal_num}{doc_suffix} ({name}) v.{version}.{revision_val}.xlsx"
+    logger.debug(f"filename: {filename}")
+
+    filename = _is_filename(filename)
     
+    logger.debug(f"fixed filename: {filename}")
+    logger.debug("FUNCTION create_document_filename END")
+
     return filename
 
 # Copy and rename templates
 def copy_rename_template(templates_directory, output_directory, filename, config):
+    
     template_name = config["template_filename"]
     input_path = os.path.join(templates_directory, template_name)
     output_path = os.path.join(output_directory, filename)
     message = ""
-    #print(f"Копирую '{input_path}' в '{output_path}'")
+    
+    logger.debug("FUNCTION copy_rename_template")
+    logger.debug(f"template_name: {template_name}")
+    logger.debug(f"input_path: {input_path}")
+    logger.debug(f"output_path: {output_path}")
+    logger.debug("FUNCTION copy_rename_template END")
+
     try:
         shutil.copy2(input_path, output_path)
         return message

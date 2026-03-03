@@ -1,11 +1,14 @@
-import os, sys, time, re
+import os, sys, time, re, logging
 from typing import Dict, Any, Tuple
 import pandas as pd
+import config
 from bom import combine_bom_components, sort_bom, concat_bom_and_docs, modify_bom_fields
 from part_list import clean_part_list_non_des_fields, combine_part_list_consecutive_components, modify_part_list_fields
 from excel import *
 from auxiliary import get_input_file, check_dataframe, read_user_input, export_pdf
+
 Menu = Dict[str, Any]
+logger = logging.getLogger(__name__)
 
 # ====================== Global variables ======================
 found_files = [] # List of excel files in input dir
@@ -31,7 +34,10 @@ part_list_name_field_lenght = 50
 
 # ====================== Base functions ======================
 def print_menu(menu, message):
-    os.system("cls")
+    if config.DEBUG:
+        print("\n==== SCREEN ==== SCREEN ==== SCREEN ==== SCREEN ====\n")
+    else:
+        os.system("cls")
     for _, item in menu["data"].items():
         print(item["label"])
     if menu["hint"]:
@@ -97,7 +103,7 @@ def menu_generate_data() -> Tuple[Menu, str]:
         part_list_file_name, bom_file_name, PART_LIST_CONFIG, BOM_CONFIG, \
         templates_directory, output_directory
     message = ""
-
+    logger.debug("FUNCTION menu_generate_data")
     # Check that dataframes have valid data
     if df_groups.empty or df_data.empty:
         message = "ОШИБКА! Сначала загрузите данные!"
@@ -123,6 +129,12 @@ def menu_generate_data() -> Tuple[Menu, str]:
     bom_file_name = create_document_filename(df_params, BOM_CONFIG)
 
     # Copy part list template
+    logger.debug(f"templates_directory: {templates_directory}")
+    logger.debug(f"output_directory: {output_directory}")
+    logger.debug(f"part_list_file_name: {part_list_file_name}")
+    logger.debug(f"Looking for template: {os.path.join(templates_directory, PART_LIST_CONFIG['template_filename'])}")
+    logger.debug(f"File exists: {os.path.exists(os.path.join(templates_directory, PART_LIST_CONFIG['template_filename']))}")
+    logger.debug("FUNCTION menu_generate_data END")
     message = copy_rename_template(templates_directory, output_directory, part_list_file_name, PART_LIST_CONFIG)
     if message:
         return main_menu, message

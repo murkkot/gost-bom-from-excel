@@ -1,4 +1,7 @@
-import re, os, sys
+import re, os, sys, logging
+import config
+
+logger = logging.getLogger(__name__)
 
 # Process designator sequences according to GOST
 def process_designator_sequence(designators):
@@ -149,7 +152,10 @@ def check_dataframe(df, column_list, filename):
 
 # Get input file from user input
 def get_input_file(files):
-    os.system("cls")
+    if config.DEBUG:
+        print("\n==== SCREEN ==== SCREEN ==== SCREEN ==== SCREEN ====\n")
+    else:
+        os.system("cls")
     print("Найдены следующие excel файлы:")
     for i, filename in enumerate(files, 1): # Print all filenames
         print(f"{i}. {filename}")
@@ -213,3 +219,23 @@ def export_pdf(excel_path, pdf_path):
     except Exception as e:
         message = f"Ошибка экспорта: {e}"
         return message
+    
+def _is_filename(filename):
+    # Invalid Windows filename characters
+    invalid_chars = '<>:"/\\|?*'
+    
+    # Replace each invalid character with "-"
+    for char in invalid_chars:
+        filename = filename.replace(char, "-")
+    
+    # Replace multiple consecutive dashes with a single dash
+    filename = re.sub(r'-+', '-', filename)
+    
+    # Remove leading/trailing dashes and spaces
+    filename = filename.strip('-').strip()
+    
+    # Ensure filename is not empty after sanitization
+    if not filename:
+        filename = "unnamed"
+    
+    return filename

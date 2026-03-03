@@ -65,7 +65,15 @@ pipeline {
                 echo 'building...'
                 echo "${WORKSPACE}"
                 sh """
-                    docker run --rm -v /mnt/ssdsata/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src kicsikrumpli/wine-pyinstaller --clean --onefile main.py
+<<<<<<< Updated upstream
+                    docker run --rm -v /home/nas/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src kicsikrumpli/wine-pyinstaller --clean --onefile main.py
+=======
+                    docker run --rm \
+                    -v "/home/nas/docker/jenkins/jenkins_home/workspace/gost-bom-from-excel:/src" \
+                    -w /src \
+                    marius9669/pyinstaller-windows:latest \
+                    pyinstaller --clean --onefile main.py
+>>>>>>> Stashed changes
                 """
             }
         }
