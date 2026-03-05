@@ -11,6 +11,7 @@
    - В поле Properties на вкладке General в строке Template укажите файл шаблона [templates/altium_template.xlsx](templates/altium_template.xlsx).
    - В поле Properties на вкладке Columns выберите столбцы **Designator, Name, Quantity, Decimal Number**. *Не сортируйте ни один столбец!* Нажмите OK.
    - Создайте и настройте Output Container. Сгенерируйте файл входящей спецификации. Положите файл в папку *input* внутри папки с программой. Пример входящей спецификации можно посмотреть в [examples/bom_from_altium.xlsx](examples/bom_from_altium.xlsx).
+   ![Settings image](img/settings.jpg)
 3. Подготовьте файл документации для спецификации. Пример можно посмотреть в [examples/docs_for_sp.xlsx](examples/docs_for_sp.xlsx). Возьмите пример за основу для создания вашего файла. Положите файл в папку *input* внутри папки с программой.
 4. Запустите *main.exe* и следуйте инструкциям программы.
 5. Исходящие файлы программа сохраняет в папку *output*.
