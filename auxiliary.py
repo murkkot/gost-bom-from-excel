@@ -1,5 +1,6 @@
 import re, os, sys, logging
 import config
+import keyboard
 
 logger = logging.getLogger(__name__)
 
@@ -152,34 +153,75 @@ def check_dataframe(df, column_list, filename):
 
 # Get input file from user input
 def get_input_file(files):
-    if config.DEBUG:
-        print("\n==== SCREEN ==== SCREEN ==== SCREEN ==== SCREEN ====\n")
-    else:
-        os.system("cls")
-    print("Найдены следующие excel файлы:")
-    for i, filename in enumerate(files, 1): # Print all filenames
-        print(f"{i}. {filename}")
-    # Prompt for file number
+    # Print header (3 lines) - fixed to use write for consistency
+    sys.stdout.write("\033[1m Главное меню - Загрузки - Загрузить excel файлы\033[0m\n")
+    sys.stdout.write("----------------------------------------------------\n")
+    sys.stdout.write("Найдены следующие excel файлы:\n")
+    
+    # Print a blank line for spacing
+    sys.stdout.write("\n")
+    
+    min_val = 1
+    max_val = len(files)
+    index = 1
+    width = max(len(f) for f in files) + 10
+    
+    # Menu starts at line 5
+    menu_start_line = 5
+    
+    sys.stdout.flush()
+    
     while True:
-        try:
-            choice = int(input("Введите номер файла: "))
-            if 1 <= choice <= len(files):
-                break
-            print(f"Введите число между 1 и {len(files)}")
-        except ValueError:
-            print(f"Введите число между 1 и {len(files)}")
-    return choice
+        # Go to menu start (no save/restore needed)
+        sys.stdout.write(f'\033[{menu_start_line};1H')
+        
+        # Print all filenames with current selection
+        for idx, filename in enumerate(files, 1):
+            sys.stdout.write('\033[2K')  # Clear the current line
+            if index == idx:
+                sys.stdout.write(f"\033[7m {filename.ljust(width)}\033[0m\n")
+            else:
+                sys.stdout.write(f" {filename.ljust(width)}\n")
+        
+        sys.stdout.flush()
+        
+        event = keyboard.read_event(suppress=False)
+        if event.event_type == keyboard.KEY_DOWN:
+            if event.name == 'up':
+                if index == min_val:
+                    index = max_val
+                else:
+                    index -= 1
+            elif event.name == 'down':
+                if index == max_val:
+                    index = min_val
+                else:
+                    index += 1
+            elif event.name == 'enter':
+                sys.stdout.write(f'\033[{menu_start_line};1H')
+                return index
 
 # Read user input
-def read_user_input(message, min, max):
+def read_user_input(index, min, max):
+    confirm = False
     while True:
-        try:
-            choice = int(input(message))
-            if min <= choice <= max:
-                return choice
-            print(f"Введите число между {min} и {max}")
-        except ValueError:
-            print(f"Введите число между {min} и {max}")
+        event = keyboard.read_event(suppress=False)
+        if event.event_type == keyboard.KEY_DOWN:
+            if event.name == 'up':
+                if index == min:
+                    index = max
+                else:
+                    index -= 1
+                return index, confirm
+            elif event.name == 'down':
+                if index == max:
+                    index = min
+                else:
+                    index += 1
+                return index, confirm
+            elif event.name == 'enter':
+                confirm = True
+                return index, confirm
 
 def export_pdf(excel_path, pdf_path):
     message = ""
@@ -239,3 +281,13 @@ def _is_filename(filename):
         filename = "unnamed"
     
     return filename
+
+def hide_cursor():
+    """Hide the terminal cursor"""
+    sys.stdout.write('\033[?25l')
+    sys.stdout.flush()
+
+def show_cursor():
+    """Show the terminal cursor"""
+    sys.stdout.write('\033[?25h')
+    sys.stdout.flush()

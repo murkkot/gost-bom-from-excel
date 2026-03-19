@@ -33,20 +33,46 @@ part_list_designator_field_lenght = 15
 part_list_name_field_lenght = 50
 
 # ====================== Base functions ======================
-def print_menu(menu, message):
+def print_menu(menu, message, index, first_call=False):
+   
     if config.DEBUG:
         print("\n==== SCREEN ==== SCREEN ==== SCREEN ==== SCREEN ====\n")
     else:
-        os.system("cls")
+        # Only clear the screen on the first call
+        if first_call:
+            sys.stdout.write('\033[2J\033[H')  # Clear entire screen
+        else:
+            # Move to home position without clearing
+            sys.stdout.write('\033[H')
+    
+    label = menu["menu_title"]
+    sys.stdout.write(f"\033[1m{label} \033[0m\n")
+    sys.stdout.write("----------------------------------------------------\n")
+    
+    # Calculate width
+    width = 0
     for _, item in menu["data"].items():
-        print(item["label"])
+        label = str(item.get("label", ""))
+        if width < len(label):
+            width = len(label) + 10
+    
+    # Print menu items
+    for idx, item in menu["data"].items():
+        label = item["label"].ljust(width)
+        if index == int(idx):
+            sys.stdout.write(f"\033[7m {label}\033[0m\n")
+        else:
+            sys.stdout.write(f" {label}\n")
+    
     if menu["hint"]:
-        print(menu["hint"])
+        sys.stdout.write(f"{menu['hint']}\n")
     if message:
-        print("=> " + message + "\n")
+        sys.stdout.write("=> " + message + "\n")
+    
+    sys.stdout.flush()
 
-def execute_menu_input(menu, choice) -> Tuple[Menu, str]:
-    action = menu["data"][str(choice)]["action"]
+def execute_menu_input(menu, index) -> Tuple[Menu, str]:
+    action = menu["data"][str(index)]["action"]
     next_menu, message = action()
     return next_menu, message
 
@@ -264,12 +290,13 @@ def menu_set_name_part_list() -> Tuple[Menu, str]:
 # ====================== Dictionaries ======================
 main_menu = {
     "data": {
-        "1": {"label": "1. Загрузить данные", "action": menu_load_data},
-        "2": {"label": "2. Сгенерировать файлы", "action": menu_generate_data},
-        "3": {"label": "3. Настройки", "action": menu_settings},
-        "4": {"label": "4. Выход", "action": menu_exit},
+        "1": {"label": "Загрузить данные", "action": menu_load_data},
+        "2": {"label": "Сгенерировать файлы", "action": menu_generate_data},
+        "3": {"label": "Настройки", "action": menu_settings},
+        "4": {"label": "Выход", "action": menu_exit},
     },
     "menu_max": 4,
+    "menu_title": "Главное меню",
     "hint": (
         "----------------------------------------------------\n"
     )
@@ -277,12 +304,13 @@ main_menu = {
 
 load_menu = {
     "data": {
-        "1": {"label": "1. Загрузить файл c данными из Altium", "action": menu_load_bom},
-        "2": {"label": "2. Загрузить файл с документацией для спецификации", "action": menu_load_docs},
-        "3": {"label": "3. Назад", "action": menu_back},
-        "4": {"label": "4. Выход", "action": menu_exit},
+        "1": {"label": "Загрузить файл c данными из Altium", "action": menu_load_bom},
+        "2": {"label": "Загрузить файл с документацией для спецификации", "action": menu_load_docs},
+        "3": {"label": "Назад", "action": menu_back},
+        "4": {"label": "Выход", "action": menu_exit},
     },
     "menu_max": 4,
+    "menu_title": "Главное меню - Загрузки",
     "hint": (
         "----------------------------------------------------\n"
         "Загрузите файл с данными из Altium. Данные необходимо сгенерировать по шаблону.\n"
@@ -295,12 +323,13 @@ load_menu = {
 
 gen_menu = {
     "data": {
-        "1": {"label": "1. Сгенерировать перечень элементов и спецификацию в excel", "action": menu_gen_excel_all},
-        "2": {"label": "2. Сгенерировать перечень элементов и спецификацию в pdf", "action": menu_gen_pdf_all},
-        "3": {"label": "3. Назад", "action": menu_back},
-        "4": {"label": "4. Выход", "action": menu_exit},
+        "1": {"label": "Сгенерировать перечень элементов и спецификацию в excel", "action": menu_gen_excel_all},
+        "2": {"label": "Сгенерировать перечень элементов и спецификацию в pdf", "action": menu_gen_pdf_all},
+        "3": {"label": "Назад", "action": menu_back},
+        "4": {"label": "Выход", "action": menu_exit},
     },
     "menu_max": 4,
+    "menu_title": "Главное меню - Генерация",
     "hint": (
         "----------------------------------------------------\n"
         "Сгенерированные файлы находятся в папке output.\n"
@@ -313,14 +342,15 @@ gen_menu = {
 
 set_menu = {
     "data": {
-        "1": {"label": "1. Изменить количество символов в поле Примечание (спецификация)", "action": menu_set_designator_bom},
-        "2": {"label": "2. Изменить количество символов в поле Наименование (спецификация)", "action": menu_set_name_bom},
-        "3": {"label": "3. Изменить количество символов в поле Поз. обозначение (перечень элементов)", "action": menu_set_designator_part_list},
-        "4": {"label": "4. Изменить количество символов в поле Наименование (перечень элементов)", "action": menu_set_name_part_list},
-        "5": {"label": "5. Назад", "action": menu_back},
-        "6": {"label": "6. Выход", "action": menu_exit},
+        "1": {"label": "Изменить количество символов в поле Примечание (спецификация)", "action": menu_set_designator_bom},
+        "2": {"label": "Изменить количество символов в поле Наименование (спецификация)", "action": menu_set_name_bom},
+        "3": {"label": "Изменить количество символов в поле Поз. обозначение (перечень элементов)", "action": menu_set_designator_part_list},
+        "4": {"label": "Изменить количество символов в поле Наименование (перечень элементов)", "action": menu_set_name_part_list},
+        "5": {"label": "Назад", "action": menu_back},
+        "6": {"label": "Выход", "action": menu_exit},
     },
     "menu_max": 6,
+    "menu_title": "Главное меню - Настройки",
     "hint": (
         "----------------------------------------------------\n"
         "Изменить количество символов в соответствующих полях можно, если неправильно формируются переносы:\n"
